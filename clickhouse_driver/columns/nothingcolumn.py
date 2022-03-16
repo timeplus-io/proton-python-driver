@@ -2,7 +2,7 @@ from .intcolumn import FormatColumn
 
 
 class NothingColumn(FormatColumn):
-    ch_type = 'Nothing'
+    ch_type = 'nothing'
     format = 'B'
 
     @property

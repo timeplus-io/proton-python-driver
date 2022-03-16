@@ -7,7 +7,7 @@ from .intcolumn import UInt32Column
 
 
 class IPv4Column(UInt32Column):
-    ch_type = "IPv4"
+    ch_type = "ipv4"
     py_types = (str, IPv4Address, int)
 
     def __init__(self, types_check=False, **kwargs):
@@ -65,7 +65,7 @@ class IPv4Column(UInt32Column):
 
 
 class IPv6Column(ByteFixedString):
-    ch_type = "IPv6"
+    ch_type = "ipv6"
     py_types = (str, IPv6Address, bytes)
 
     def __init__(self, types_check=False, **kwargs):

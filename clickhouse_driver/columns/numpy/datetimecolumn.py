@@ -107,7 +107,7 @@ class NumpyDateTime64Column(NumpyDateTimeColumnBase):
 
 
 def create_numpy_datetime_column(spec, column_options):
-    if spec.startswith('DateTime64'):
+    if spec.startswith('datetime64'):
         cls = NumpyDateTime64Column
         spec = spec[11:-1]
         params = spec.split(',', 1)

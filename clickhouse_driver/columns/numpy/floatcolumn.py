@@ -8,7 +8,7 @@ from .base import NumpyColumn
 
 class NumpyFloat32Column(NumpyColumn):
     dtype = np.dtype(np.float32)
-    ch_type = 'Float32'
+    ch_type = 'float32'
     normalize_null_value = False
 
     def _get_nulls_map(self, items):
@@ -17,7 +17,7 @@ class NumpyFloat32Column(NumpyColumn):
 
 class NumpyFloat64Column(NumpyColumn):
     dtype = np.dtype(np.float64)
-    ch_type = 'Float64'
+    ch_type = 'float64'
     normalize_null_value = False
 
     def _get_nulls_map(self, items):
