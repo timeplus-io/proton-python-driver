@@ -54,19 +54,19 @@ class EnumColumn(IntColumn):
 
 
 class Enum8Column(EnumColumn):
-    ch_type = 'Enum8'
+    ch_type = 'enum8'
     format = 'b'
     int_size = 1
 
 
 class Enum16Column(EnumColumn):
-    ch_type = 'Enum16'
+    ch_type = 'enum16'
     format = 'h'
     int_size = 2
 
 
 def create_enum_column(spec, column_options):
-    if spec.startswith('Enum8'):
+    if spec.startswith('enum8'):
         params = spec[6:-1]
         cls = Enum8Column
     else:

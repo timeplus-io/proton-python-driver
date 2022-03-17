@@ -52,49 +52,49 @@ class UIntColumn(IntColumn):
 
 
 class Int8Column(IntColumn):
-    ch_type = 'Int8'
+    ch_type = 'int8'
     format = 'b'
     int_size = 1
 
 
 class Int16Column(IntColumn):
-    ch_type = 'Int16'
+    ch_type = 'int16'
     format = 'h'
     int_size = 2
 
 
 class Int32Column(IntColumn):
-    ch_type = 'Int32'
+    ch_type = 'int32'
     format = 'i'
     int_size = 4
 
 
 class Int64Column(IntColumn):
-    ch_type = 'Int64'
+    ch_type = 'int64'
     format = 'q'
     int_size = 8
 
 
 class UInt8Column(UIntColumn):
-    ch_type = 'UInt8'
+    ch_type = 'uint8'
     format = 'B'
     int_size = 1
 
 
 class UInt16Column(UIntColumn):
-    ch_type = 'UInt16'
+    ch_type = 'uint16'
     format = 'H'
     int_size = 2
 
 
 class UInt32Column(UIntColumn):
-    ch_type = 'UInt32'
+    ch_type = 'uint32'
     format = 'I'
     int_size = 4
 
 
 class UInt64Column(UIntColumn):
-    ch_type = 'UInt64'
+    ch_type = 'uint64'
     format = 'Q'
     int_size = 8
 
@@ -122,7 +122,7 @@ class LargeIntColumn(IntColumn):
 
 
 class Int128Column(LargeIntColumn):
-    ch_type = 'Int128'
+    ch_type = 'int128'
     int_size = 16
     factor = 2
 
@@ -131,7 +131,7 @@ class Int128Column(LargeIntColumn):
 
 
 class UInt128Column(LargeIntColumn):
-    ch_type = 'UInt128'
+    ch_type = 'uint128'
     int_size = 16
     factor = 2
 
@@ -140,7 +140,7 @@ class UInt128Column(LargeIntColumn):
 
 
 class Int256Column(LargeIntColumn):
-    ch_type = 'Int256'
+    ch_type = 'int256'
     int_size = 32
     factor = 4
 
@@ -149,7 +149,7 @@ class Int256Column(LargeIntColumn):
 
 
 class UInt256Column(LargeIntColumn):
-    ch_type = 'UInt256'
+    ch_type = 'uint256'
     int_size = 32
     factor = 4
 

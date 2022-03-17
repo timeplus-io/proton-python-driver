@@ -8,7 +8,7 @@ class FloatColumn(FormatColumn):
 
 
 class Float32Column(FloatColumn):
-    ch_type = 'Float32'
+    ch_type = 'float32'
     format = 'f'
 
     def __init__(self, types_check=False, **kwargs):
@@ -30,5 +30,5 @@ class Float32Column(FloatColumn):
 
 
 class Float64Column(FloatColumn):
-    ch_type = 'Float64'
+    ch_type = 'float64'
     format = 'd'

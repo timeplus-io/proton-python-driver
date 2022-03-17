@@ -67,38 +67,38 @@ def get_column_by_spec(spec, column_options, use_numpy=None):
     def create_column_with_options(x):
         return get_column_by_spec(x, column_options, use_numpy=use_numpy)
 
-    if spec == 'String' or spec.startswith('FixedString'):
+    if spec == 'string' or spec.startswith('fixed_string'):
         return create_string_column(spec, column_options)
 
-    elif spec.startswith('Enum'):
+    elif spec.startswith('enum'):
         return create_enum_column(spec, column_options)
 
-    elif spec.startswith('DateTime'):
+    elif spec.startswith('datetime'):
         return create_datetime_column(spec, column_options)
 
-    elif spec.startswith('Decimal'):
+    elif spec.startswith('decimal'):
         return create_decimal_column(spec, column_options)
 
-    elif spec.startswith('Array'):
+    elif spec.startswith('array'):
         return create_array_column(spec, create_column_with_options)
 
-    elif spec.startswith('Tuple'):
+    elif spec.startswith('tuple'):
         return create_tuple_column(spec, create_column_with_options)
 
-    elif spec.startswith('Nested'):
+    elif spec.startswith('nested'):
         return create_nested_column(spec, create_column_with_options)
 
-    elif spec.startswith('Nullable'):
+    elif spec.startswith('nullable'):
         return create_nullable_column(spec, create_column_with_options)
 
-    elif spec.startswith('LowCardinality'):
+    elif spec.startswith('low_cardinality'):
         return create_low_cardinality_column(spec, create_column_with_options)
 
-    elif spec.startswith('SimpleAggregateFunction'):
+    elif spec.startswith('simple_aggregate_function'):
         return create_simple_aggregate_function_column(
             spec, create_column_with_options)
 
-    elif spec.startswith('Map'):
+    elif spec.startswith('map'):
         return create_map_column(spec, create_column_with_options)
 
     else:

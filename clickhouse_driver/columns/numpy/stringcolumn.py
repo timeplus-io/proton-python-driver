@@ -69,7 +69,7 @@ def create_string_column(spec, column_options):
         'strings_encoding', NumpyStringColumn.default_encoding
     )
 
-    if spec == 'String':
+    if spec == 'string':
         cls = NumpyByteStringColumn if strings_as_bytes else NumpyStringColumn
         return cls(encoding=encoding, **column_options)
     else:

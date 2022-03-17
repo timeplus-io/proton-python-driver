@@ -171,7 +171,7 @@ class RowOrientedBlock(BaseBlock):
         columns_with_cwt = []
         for name, type_ in columns_with_types:
             cwt = None
-            if type_.startswith('Nested'):
+            if type_.startswith('nested'):
                 cwt = nestedcolumn.get_columns_with_types(type_)
             columns_with_cwt.append((name, cwt))
 

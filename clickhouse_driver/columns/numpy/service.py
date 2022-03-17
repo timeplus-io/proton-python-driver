@@ -22,16 +22,16 @@ def get_numpy_column_by_spec(spec, column_options):
     def create_column_with_options(x):
         return get_numpy_column_by_spec(x, column_options)
 
-    if spec == 'String' or spec.startswith('FixedString'):
+    if spec == 'string' or spec.startswith('fixed_string'):
         return create_string_column(spec, column_options)
 
-    elif spec.startswith('DateTime'):
+    elif spec.startswith('datetime'):
         return create_numpy_datetime_column(spec, column_options)
 
-    elif spec.startswith('Nullable'):
+    elif spec.startswith('nullable'):
         return create_nullable_column(spec, create_column_with_options)
 
-    elif spec.startswith('LowCardinality'):
+    elif spec.startswith('low_cardinality'):
         return create_numpy_low_cardinality_column(spec,
                                                    create_column_with_options)
     else:

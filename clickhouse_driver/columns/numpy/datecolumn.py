@@ -5,7 +5,7 @@ from .base import NumpyColumn
 
 class NumpyDateColumn(NumpyColumn):
     dtype = np.dtype(np.uint16)
-    ch_type = 'Date'
+    ch_type = 'date'
 
     null_value = np.datetime64(0, 'Y')
 

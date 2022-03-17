@@ -8,7 +8,7 @@ EPOCH = datetime(1970, 1, 1, tzinfo=utc)
 
 
 class DateTimeColumn(FormatColumn):
-    ch_type = 'DateTime'
+    ch_type = 'datetime'
     py_types = (datetime, int)
     format = 'I'
 
@@ -85,7 +85,7 @@ class DateTimeColumn(FormatColumn):
 
 
 class DateTime64Column(DateTimeColumn):
-    ch_type = 'DateTime64'
+    ch_type = 'datetime64'
     format = 'q'
 
     max_scale = 6
@@ -170,7 +170,7 @@ class DateTime64Column(DateTimeColumn):
 
 
 def create_datetime_column(spec, column_options):
-    if spec.startswith('DateTime64'):
+    if spec.startswith('datetime64'):
         cls = DateTime64Column
         spec = spec[11:-1]
         params = spec.split(',', 1)
@@ -193,6 +193,7 @@ def create_datetime_column(spec, column_options):
     else:
         if not context.settings.get('use_client_time_zone', False):
             local_timezone = get_localzone_name_compat()
+
             if local_timezone != context.server_info.timezone:
                 tz_name = context.server_info.timezone
 

@@ -6,28 +6,28 @@ class IntervalColumn(Int64Column):
 
 
 class IntervalDayColumn(IntervalColumn):
-    ch_type = 'IntervalDay'
+    ch_type = 'interval_day'
 
 
 class IntervalWeekColumn(IntervalColumn):
-    ch_type = 'IntervalWeek'
+    ch_type = 'interval_week'
 
 
 class IntervalMonthColumn(IntervalColumn):
-    ch_type = 'IntervalMonth'
+    ch_type = 'interval_month'
 
 
 class IntervalYearColumn(IntervalColumn):
-    ch_type = 'IntervalYear'
+    ch_type = 'interval_year'
 
 
 class IntervalHourColumn(IntervalColumn):
-    ch_type = 'IntervalHour'
+    ch_type = 'interval_hour'
 
 
 class IntervalMinuteColumn(IntervalColumn):
-    ch_type = 'IntervalMinute'
+    ch_type = 'interval_minute'
 
 
 class IntervalSecondColumn(IntervalColumn):
-    ch_type = 'IntervalSecond'
+    ch_type = 'interval_second'

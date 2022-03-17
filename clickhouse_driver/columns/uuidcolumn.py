@@ -6,7 +6,7 @@ from ..writer import MAX_UINT64
 
 
 class UUIDColumn(FormatColumn):
-    ch_type = 'UUID'
+    ch_type = 'uuid'
     py_types = (str, UUID)
     format = 'Q'
 

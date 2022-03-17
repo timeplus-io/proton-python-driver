@@ -4,7 +4,7 @@ from .base import Column
 
 
 class String(Column):
-    ch_type = 'String'
+    ch_type = 'string'
     py_types = (str, )
     null_value = ''
 
@@ -33,7 +33,7 @@ class ByteString(String):
 
 
 class FixedString(String):
-    ch_type = 'FixedString'
+    ch_type = 'fixed_string'
 
     def __init__(self, length, **kwargs):
         self.length = length
@@ -64,7 +64,7 @@ def create_string_column(spec, column_options):
     strings_as_bytes = client_settings['strings_as_bytes']
     encoding = client_settings.get('strings_encoding', String.default_encoding)
 
-    if spec == 'String':
+    if spec == 'string':
         cls = ByteString if strings_as_bytes else String
         return cls(encoding=encoding, **column_options)
     else:

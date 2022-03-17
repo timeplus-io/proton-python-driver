@@ -11,7 +11,7 @@ epoch_end_date32 = date(2283, 11, 11)
 
 
 class DateColumn(FormatColumn):
-    ch_type = 'Date'
+    ch_type = 'date'
     py_types = (date, )
     format = 'H'
 
@@ -55,7 +55,7 @@ class DateColumn(FormatColumn):
 
 
 class Date32Column(DateColumn):
-    ch_type = 'Date32'
+    ch_type = 'date32'
     format = 'i'
 
     min_value = epoch_start_date32
