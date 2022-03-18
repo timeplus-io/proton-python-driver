@@ -4,5 +4,4 @@ build:
 	python3 -m build
 
 test:
-	pip install ./dist/timeplus-0.0.1.tar.gz
-	pytest tests/
+	pip install ./dist/clickhouse-driver-0.2.4.tar.gz
