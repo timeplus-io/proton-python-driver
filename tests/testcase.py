@@ -7,6 +7,13 @@ from clickhouse_driver.client import Client
 from tests import log
 from tests.util import skip_by_server_version
 
+import logging
+
+logger = logging.getLogger(__name__)
+formatter = logging.Formatter(
+    "%(asctime)s.%(msecs)03d [%(levelname)8s] [%(processName)s] [%(module)s] [%(funcName)s] %(message)s (%(filename)s:%(lineno)s)"
+)
+
 
 file_config = configparser.ConfigParser()
 file_config.read(['setup.cfg'])
@@ -37,8 +44,10 @@ class BaseTestCase(TestCase):
 
         args = [
             cls.clickhouse_client_binary,
-            '--database', database,
+            #'--database', database,
             '--host', cls.host,
+            '-u', cls.user,
+            #'--password', cls.password,
             '--port', str(cls.port),
             '--query', str(statement)
         ]
@@ -62,9 +71,9 @@ class BaseTestCase(TestCase):
     def _create_client(self, **kwargs):
         client_kwargs = {
             'port': self.port,
-            'database': self.database,
-            'user': self.user,
-            'password': self.password
+            #'database': self.database,
+            #'user': self.user,
+            #'password': self.password
         }
         client_kwargs.update(kwargs)
         return Client(self.host, **client_kwargs)
@@ -74,11 +83,11 @@ class BaseTestCase(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.emit_cli(
-            'DROP DATABASE IF EXISTS {}'.format(cls.database), 'default'
-        )
-        cls.emit_cli('CREATE DATABASE {}'.format(cls.database), 'default')
-
+        #cls.emit_cli(
+        #    'DROP DATABASE IF EXISTS {}'.format(cls.database), 'default'
+        #)
+        #cls.emit_cli('CREATE DATABASE {}'.format(cls.database), 'default')
+        cls.emit_cli('DROP STREAM IF EXISTS test')
         version_str = cls.emit_cli('SELECT version()').strip()
         cls.server_version = tuple(int(x) for x in version_str.split('.'))
 
@@ -105,7 +114,7 @@ class BaseTestCase(TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.emit_cli('DROP DATABASE {}'.format(cls.database))
+        #cls.emit_cli('DROP DATABASE {}'.format(cls.database))
         super(BaseTestCase, cls).tearDownClass()
 
     @contextmanager
@@ -119,12 +128,14 @@ class BaseTestCase(TestCase):
                 kwargs.update(self.cli_client_kwargs)
 
         self.emit_cli(
-            'CREATE TABLE test ({}) ''ENGINE = Memory'.format(columns),
+            'CREATE STREAM test ({}) '.format(columns),
             **kwargs
         )
         try:
             yield
-        except Exception:
+        except(BaseException) as error:
+            print(f"exceoption, error = {error}")
+            logger.debug(f"exceoption, error = {error}")
             raise
         finally:
-            self.emit_cli('DROP TABLE test')
+            self.emit_cli('DROP STREAM test')

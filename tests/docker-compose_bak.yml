@@ -1,9 +1,9 @@
-version: '3'
+version: "3.7"
 
 services:
   clickhouse-server:
-    image: "$ORG/clickhouse-server:$VERSION"
-    container_name: test-clickhouse-server
+    image: "timeplus/proton-server:$VERSION"
+    container_name: test-proton-server
     environment:
       - TZ=Europe/Moscow
     ports:
