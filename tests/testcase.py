@@ -41,17 +41,29 @@ class BaseTestCase(TestCase):
     def emit_cli(cls, statement, database=None, encoding='utf-8', **kwargs):
         if database is None:
             database = cls.database
-
-        args = [
-            cls.clickhouse_client_binary,
-            #'--database', database,
-            '--host', cls.host,
-            '-u', cls.user,
-            #'--password', cls.password,
-            '--port', str(cls.port),
-            '--query', str(statement)
-        ]
-
+        logger.debug(f"statement = {statement}")
+        if "DATABASE" in statement or "database" in statement:
+            # proton-client --database test --query='create/drop database test' will fail, so if database or DATABASE in statement, no --database for proton-client
+            args = [
+                cls.clickhouse_client_binary,
+                #'--database', database, 
+                '--host', cls.host,
+                '--user', cls.user,
+                '--password', cls.password,
+                '--port', str(cls.port),
+                '--query', str(statement)
+            ]
+        else:
+            args = [
+                cls.clickhouse_client_binary,
+                #'--database', database, #bug for a created user to create stream in a database other than default.
+                '--host', cls.host,
+                '--user', cls.user,
+                '--password', cls.password,
+                '--port', str(cls.port),
+                '--query', str(statement)
+            ]
+        logger.debug(f"args = {args}")
         for key, value in kwargs.items():
             args.extend(['--' + key, str(value)])
 
@@ -72,8 +84,8 @@ class BaseTestCase(TestCase):
         client_kwargs = {
             'port': self.port,
             #'database': self.database,
-            #'user': self.user,
-            #'password': self.password
+            'user': self.user,
+            'password': self.password
         }
         client_kwargs.update(kwargs)
         return Client(self.host, **client_kwargs)
@@ -84,9 +96,9 @@ class BaseTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
         #cls.emit_cli(
-        #    'DROP DATABASE IF EXISTS {}'.format(cls.database), 'default'
+        #    'DROP DATABASE IF EXISTS {}'.format(cls.database), 'test'
         #)
-        #cls.emit_cli('CREATE DATABASE {}'.format(cls.database), 'default')
+        #cls.emit_cli('CREATE DATABASE {}'.format(cls.database), 'test')
         cls.emit_cli('DROP STREAM IF EXISTS test')
         version_str = cls.emit_cli('SELECT version()').strip()
         cls.server_version = tuple(int(x) for x in version_str.split('.'))

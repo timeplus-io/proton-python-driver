@@ -1,0 +1,3 @@
+#!/bin/bash
+
+docker exec -e "`env | grep ^TZ=`" proton-server proton-client "$@"

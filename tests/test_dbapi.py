@@ -117,13 +117,13 @@ class DBAPITestCase(DBAPITestCaseBase):
             self.assertEqual(cursor.fetchall(), [(0,), (1,), (2,), (3,)])
 
     def test_executemany(self):
-        with self.created_cursor() as cursor, self.create_table('a UInt32'):
+        with self.created_cursor() as cursor, self.create_table('a uint32'):
             data = [(0, ), (1, ), (2, )]
             rv = cursor.executemany('INSERT INTO test VALUES', data)
             self.assertIsNone(rv, None)
             self.assertEqual(cursor.rowcount, 3)
 
-            cursor.execute('SELECT * FROM test')
+            cursor.execute('SELECT * FROM table(test) settings asterisk_include_reserved_columns=false')
             self.assertEqual(cursor.fetchall(), data)
 
     def test_fake_transactions(self):
@@ -147,26 +147,26 @@ class DBAPITestCase(DBAPITestCaseBase):
             self.assertEqual(cursor.rowcount, -1)
 
     def test_rowcount_insert_from_select(self):
-        with self.created_cursor() as cursor, self.create_table('a UInt8'):
+        with self.created_cursor() as cursor, self.create_table('a uint8'):
             cursor.execute(
-                'INSERT INTO test '
+                'INSERT INTO test (a) '
                 'SELECT number FROM system.numbers LIMIT 4'
             )
             self.assertEqual(cursor.rowcount, -1)
 
     def test_execute_insert(self):
-        with self.created_cursor() as cursor, self.create_table('a UInt8'):
+        with self.created_cursor() as cursor, self.create_table('a uint8'):
             cursor.execute('INSERT INTO test VALUES', [[4]])
             self.assertEqual(cursor.rowcount, 1)
 
     def test_description(self):
         with self.created_cursor() as cursor:
             self.assertIsNone(cursor.description)
-            cursor.execute('SELECT CAST(1 AS UInt32) AS test')
+            cursor.execute('SELECT CAST(1 AS uint32) AS test')
             desc = cursor.description
             self.assertEqual(len(desc), 1)
             self.assertEqual(desc[0].name, 'test')
-            self.assertEqual(desc[0].type_code, 'UInt32')
+            self.assertEqual(desc[0].type_code, 'uint32')
 
     def test_pep249_sizes(self):
         with self.created_cursor() as cursor:
@@ -278,14 +278,14 @@ class ExtrasTestCase(DBAPITestCaseBase):
         with self.created_cursor() as cursor:
             self.assertIsNone(cursor.columns_with_types)
             cursor.execute(
-                'SELECT CAST(number AS UInt64) AS x '
+                'SELECT CAST(number AS uint64) AS x '
                 'FROM system.numbers LIMIT 4'
             )
             cursor.fetchall()
-            self.assertEqual(cursor.columns_with_types, [('x', 'UInt64')])
+            self.assertEqual(cursor.columns_with_types, [('x', 'uint64')])
 
     def test_columns_with_types_insert(self):
-        with self.created_cursor() as cursor, self.create_table('a UInt8'):
+        with self.created_cursor() as cursor, self.create_table('a uint8'):
             cursor.executemany('INSERT INTO test (a) VALUES', [(123, )])
             self.assertIsNone(cursor.columns_with_types)
 
@@ -293,17 +293,17 @@ class ExtrasTestCase(DBAPITestCaseBase):
         with self.created_cursor() as cursor:
             cursor.set_stream_results(True, 2)
             cursor.execute(
-                'SELECT CAST(number AS UInt64) AS x '
+                'SELECT CAST(number AS uint64) AS x '
                 'FROM system.numbers LIMIT 4'
             )
-            self.assertEqual(cursor.columns_with_types, [('x', 'UInt64')])
+            self.assertEqual(cursor.columns_with_types, [('x', 'uint64')])
             list(cursor)
-            self.assertEqual(cursor.columns_with_types, [('x', 'UInt64')])
+            self.assertEqual(cursor.columns_with_types, [('x', 'uint64')])
 
     def test_set_external_tables(self):
         with self.created_cursor() as cursor:
             data = [(0, ), (1, ), (2, )]
-            cursor.set_external_table('table1', [('x', 'UInt32')], data)
+            cursor.set_external_table('table1', [('x', 'uint32')], data)
             cursor.execute('SELECT * FROM table1')
             self.assertEqual(cursor.fetchall(), data)
 
@@ -330,12 +330,12 @@ class ExtrasTestCase(DBAPITestCaseBase):
             self.assertEqual(cursor.fetchall(), [(query_id, )])
 
     def test_types_check(self):
-        with self.created_cursor() as cursor, self.create_table('a UInt8'):
+        with self.created_cursor() as cursor, self.create_table('a uint8'):
             cursor.set_types_check(True)
 
             data = [(300, )]
             cursor.executemany('INSERT INTO test (a) VALUES', data)
-            cursor.execute('SELECT * FROM test')
+            cursor.execute('SELECT * FROM table(test) settings asterisk_include_reserved_columns=false')
             self.assertEqual(cursor.fetchall(), [(44, )])
 
     def test_cursor_iteration(self):
