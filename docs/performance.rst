@@ -2,10 +2,10 @@
 Performance
 ===========
 
-This section compares clickhouse-driver performance over Native interface
+This section compares  performance over Native interface
 with TSV and JSONEachRow formats available over HTTP interface.
 
-clickhouse-driver returns already parsed row items in Python data types.
+ returns already parsed row items in Python data types.
 Driver performs all transformation for you.
 
 When you read data over HTTP you may need to cast strings into Python types.
@@ -164,7 +164,7 @@ Required packages
 
 .. code-block:: bash
 
-    pip install clickhouse-driver requests
+    pip install  requests
 
 For fast json parsing we'll use ``ujson`` package:
 
@@ -177,7 +177,7 @@ Installed packages: ::
     $ pip freeze
     certifi==2020.4.5.1
     chardet==3.0.4
-    clickhouse-driver==0.1.3
+    ==0.1.3
     idna==2.9
     pytz==2019.3
     requests==2.23.0
@@ -321,12 +321,12 @@ JSONEachRow format can be loaded with json loads (3)
     data = [list(loads(line).values()) for line in resp.iter_lines(chunk_size=10000)]
 
 
-Get fully parsed rows with ``clickhouse-driver`` in Native format (4)
+Get fully parsed rows with ```` in Native format (4)
 
 .. code-block:: python
 
     import sys
-    from clickhouse_driver import Client
+    from proton_driver import Client
 
     query = "SELECT * FROM perftest.ontime WHERE FlightDate < '{}'".format(sys.argv[1])
     client = Client.from_url('clickhouse://localhost')
@@ -399,12 +399,12 @@ Iteration over JSONEachRow (6)
       line = list(loads(line).values())
 
 
-Iteration over rows with ``clickhouse-driver`` in Native format (7)
+Iteration over rows with ```` in Native format (7)
 
 .. code-block:: python
 
     import sys
-    from clickhouse_driver import Client
+    from proton_driver import Client
 
     query = "SELECT * FROM perftest.ontime WHERE FlightDate < '{}'".format(sys.argv[1])
     client = Client.from_url('clickhouse://localhost')
@@ -473,12 +473,12 @@ Iteration over JSONEachRow (9)
       line = list(loads(line).values())
 
 
-Iteration over string rows with ``clickhouse-driver`` in Native format (10)
+Iteration over string rows with ```` in Native format (10)
 
 .. code-block:: python
 
     import sys
-    from clickhouse_driver import Client
+    from proton_driver import Client
 
     cols = [
         'UniqueCarrier', 'Carrier', 'TailNum', 'FlightNum', 'Origin', 'OriginCityName', 'OriginState',
@@ -554,12 +554,12 @@ Iteration over JSONEachRow (12)
       line = list(loads(line).values())
 
 
-Iteration over int rows with ``clickhouse-driver`` in Native format (13)
+Iteration over int rows with ```` in Native format (13)
 
 .. code-block:: python
 
     import sys
-    from clickhouse_driver import Client
+    from proton_driver import Client
 
     cols = [
         'Year', 'Quarter', 'Month', 'DayofMonth', 'DayOfWeek', 'AirlineID', 'OriginAirportID', 'OriginAirportSeqID',
@@ -613,7 +613,7 @@ JSON in table is shorthand for JSONEachRow.
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
 |requests.get JSON (3)             |    2.14 s |    5.65 s |    9.20 s |   20.43 s |   31.72 s |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
-|clickhouse-driver Native (4)      |    0.73 s |    1.40 s |    2.08 s |    4.03 s |    6.20 s |
+| Native (4)      |    0.73 s |    1.40 s |    2.08 s |    4.03 s |    6.20 s |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
 |**Parsed rows: memory**                                                                       |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
@@ -623,7 +623,7 @@ JSON in table is shorthand for JSONEachRow.
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
 |requests.get JSON (3)             |    139 MB |    366 MB |    591 MB |   1.18 GB |   1.82 GB |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
-|clickhouse-driver Native (4)      |    135 MB |    337 MB |    535 MB |   1.05 GB |   1.62 GB |
+| Native (4)      |    135 MB |    337 MB |    535 MB |   1.05 GB |   1.62 GB |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
 |**Iteration over rows: timing**                                                               |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
@@ -633,7 +633,7 @@ JSON in table is shorthand for JSONEachRow.
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
 |requests.get JSON (6)             |    1.89 s |    4.73 s |    7.63 s |   15.63 s |   24.60 s |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
-|clickhouse-driver Native (7)      |    0.62 s |    1.28 s |    1.93 s |    3.68 s |    5.54 s |
+| Native (7)      |    0.62 s |    1.28 s |    1.93 s |    3.68 s |    5.54 s |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
 |**Iteration over rows: memory**                                                               |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
@@ -643,7 +643,7 @@ JSON in table is shorthand for JSONEachRow.
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
 |requests.get JSON (6)             |     20 MB |     20 MB |     20 MB |     20 MB |     20 MB |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
-|clickhouse-driver Native (7)      |     56 MB |     70 MB |     71 MB |     71 MB |     71 MB |
+| Native (7)      |     56 MB |     70 MB |     71 MB |     71 MB |     71 MB |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
 |**Iteration over string rows: timing**                                                        |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
@@ -651,7 +651,7 @@ JSON in table is shorthand for JSONEachRow.
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
 |requests.get JSON (9)             |    1.14 s |    2.64 s |    4.22 s |    8.48 s |   12.96 s |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
-|clickhouse-driver Native (10)     |    0.46 s |    0.91 s |    1.35 s |    2.49 s |    3.67 s |
+| Native (10)     |    0.46 s |    0.91 s |    1.35 s |    2.49 s |    3.67 s |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
 |**Iteration over string rows: memory**                                                        |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
@@ -659,7 +659,7 @@ JSON in table is shorthand for JSONEachRow.
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
 |requests.get JSON (9)             |     20 MB |     20 MB |     20 MB |     20 MB |     20 MB |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
-|clickhouse-driver Native (10)     |     46 MB |     56 MB |     57 MB |     57 MB |     57 MB |
+| Native (10)     |     46 MB |     56 MB |     57 MB |     57 MB |     57 MB |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
 |**Iteration over int rows: timing**                                                           |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
@@ -667,7 +667,7 @@ JSON in table is shorthand for JSONEachRow.
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
 |requests.get JSON (12)            |    0.95 s |    2.15 s |    3.55 s |    6.93 s |   10.82 s |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
-|clickhouse-driver Native (13)     |    0.43 s |    0.61 s |    0.86 s |    1.53 s |    2.27 s |
+| Native (13)     |    0.43 s |    0.61 s |    0.86 s |    1.53 s |    2.27 s |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
 |**Iteration over int rows: memory**                                                           |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
@@ -675,7 +675,7 @@ JSON in table is shorthand for JSONEachRow.
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
 |requests.get JSON (12)            |     20 MB |     20 MB |     20 MB |     20 MB |     20 MB |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
-|clickhouse-driver Native (13)     |     41 MB |     48 MB |     48 MB |     48 MB |     49 MB |
+| Native (13)     |     41 MB |     48 MB |     48 MB |     48 MB |     49 MB |
 +----------------------------------+-----------+-----------+-----------+-----------+-----------+
 
 

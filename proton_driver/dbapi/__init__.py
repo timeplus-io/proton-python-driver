@@ -36,7 +36,7 @@ def connect(dsn=None, host=None,
     - *user*: database user.
     - *password*: user's password.
 
-    See defaults in :data:`~clickhouse_driver.connection.Connection`
+    See defaults in :data:`~proton_driver.connection.Connection`
     constructor.
 
     DSN or host is required.

@@ -3,15 +3,15 @@
 Quickstart
 ==========
 
-This page gives a good introduction to clickhouse-driver.
-It assumes you already have clickhouse-driver installed.
+This page gives a good introduction to .
+It assumes you already have  installed.
 If you do not, head over to the :ref:`installation` section.
 
 A minimal working example looks like this:
 
     .. code-block:: python
 
-        >>> from clickhouse_driver import Client
+        >>> from proton_driver import Client
         >>>
         >>> client = Client(host='localhost')
         >>>
@@ -222,7 +222,7 @@ Async and multithreading
 
 Every ClickHouse query is assigned an identifier to enable request execution
 tracking. However, ClickHouse native protocol is synchronous: all incoming
-queries are executed consecutively. Clickhouse-driver does not yet implement
+queries are executed consecutively.  does not yet implement
 a connection pool.
 
 To utilize ClickHouse's asynchronous capability you should either use multiple

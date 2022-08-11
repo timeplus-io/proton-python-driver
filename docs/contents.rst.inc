@@ -1,9 +1,9 @@
 User's Guide
 ------------
 
-This part of the documentation focuses on step-by-step instructions for development with clickhouse-driver.
+This part of the documentation focuses on step-by-step instructions for development with .
 
-Clickhouse-driver is designed to communicate with ClickHouse server from Python over native protocol.
+ is designed to communicate with ClickHouse server from Python over native protocol.
 
 ClickHouse server provides two protocols for communication:
 
@@ -19,9 +19,9 @@ Each protocol has own advantages and disadvantages. Here we focus on advantages 
   Gzip compression is used in HTTP protocol.
 * Query profile info is available over native protocol. We can read rows before limit metric for example.
 
-Once again: clickhouse-driver uses native protocol (port 9000).
+Once again:  uses native protocol (port 9000).
 
-There is an asynchronous wrapper for clickhouse-driver: aioch. It's available `here <https://github.com/mymarilyn/aioch>`_.
+There is an asynchronous wrapper for : aioch. It's available `here <https://github.com/mymarilyn/aioch>`_.
 
 .. toctree::
    :maxdepth: 2

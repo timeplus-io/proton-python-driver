@@ -5,7 +5,7 @@ DB API 2.0
 
 This part of the documentation covers driver DB API.
 
-.. automodule:: clickhouse_driver.dbapi
+.. automodule:: proton_driver.dbapi
    :members:
    :inherited-members:
 
@@ -14,7 +14,7 @@ This part of the documentation covers driver DB API.
 Connection
 ----------
 
-.. autoclass:: clickhouse_driver.dbapi.connection.Connection
+.. autoclass:: proton_driver.dbapi.connection.Connection
    :members:
    :inherited-members:
 
@@ -24,7 +24,7 @@ Connection
 Cursor
 ------
 
-.. autoclass:: clickhouse_driver.dbapi.cursor.Cursor
+.. autoclass:: proton_driver.dbapi.cursor.Cursor
    :members:
    :inherited-members:
 
@@ -33,6 +33,6 @@ Extras
 
 .. _dbapi-extras:
 
-.. autoclass:: clickhouse_driver.dbapi.extras.DictCursor
+.. autoclass:: proton_driver.dbapi.extras.DictCursor
 
-.. autoclass:: clickhouse_driver.dbapi.extras.NamedTupleCursor
+.. autoclass:: proton_driver.dbapi.extras.NamedTupleCursor

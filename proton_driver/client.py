@@ -28,7 +28,7 @@ class Client(object):
                      `ClickHouse docs
                      <https://clickhouse.tech/docs/en/operations/settings/settings/>`_.
     :param \\**kwargs: All other args are passed to the
-                       :py:class:`~clickhouse_driver.connection.Connection`
+                       :py:class:`~proton_driver.connection.Connection`
                        constructor.
 
     The following keys when passed in ``settings`` are used for configuring the

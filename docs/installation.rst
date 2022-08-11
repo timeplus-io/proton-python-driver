@@ -6,7 +6,7 @@ Installation
 Python Version
 --------------
 
-Clickhouse-driver supports Python 3.4 and newer and PyPy.
+ supports Python 3.4 and newer and PyPy.
 
 Build Dependencies
 ------------------
@@ -30,7 +30,7 @@ Starting from version *0.2.3* there are wheels for musl-based Linux distribution
 Dependencies
 ------------
 
-These distributions will be installed automatically when installing clickhouse-driver.
+These distributions will be installed automatically when installing .
 
 * `pytz`_ library for timezone calculations.
 * `enum34`_ backported Python 3.4 Enum.
@@ -41,7 +41,7 @@ These distributions will be installed automatically when installing clickhouse-d
 Optional dependencies
 ~~~~~~~~~~~~~~~~~~~~~
 
-These distributions will not be installed automatically. Clickhouse-driver will detect and
+These distributions will not be installed automatically.  will detect and
 use them if you install them.
 
 * `clickhouse-cityhash`_ provides CityHash algorithm of specific version, see :ref:`compression-cityhash-notes`.
@@ -62,21 +62,21 @@ The package can be installed using ``pip``:
 
     .. code-block:: bash
 
-       pip install clickhouse-driver
+       pip install 
 
 You can install extras packages if you need compression support. Example of
 LZ4 compression requirements installation:
 
     .. code-block:: bash
 
-       pip install clickhouse-driver[lz4]
+       pip install [lz4]
 
 You also can specify multiple extras by using comma.
 Install LZ4 and ZSTD requirements:
 
     .. code-block:: bash
 
-       pip install clickhouse-driver[lz4,zstd]
+       pip install [lz4,zstd]
 
 
 .. _installation-numpy-support:
@@ -88,7 +88,7 @@ You can install additional packages (NumPy and Pandas) if you need NumPy support
 
     .. code-block:: bash
 
-       pip install clickhouse-driver[numpy]
+       pip install [numpy]
 
 NumPy supported versions are limited by ``numpy`` package python support.
 
@@ -100,4 +100,4 @@ Development version can be installed directly from github:
 
     .. code-block:: bash
 
-       pip install git+https://github.com/mymarilyn/clickhouse-driver@master#egg=clickhouse-driver
+       pip install git+https://github.com/mymarilyn/@master#egg=

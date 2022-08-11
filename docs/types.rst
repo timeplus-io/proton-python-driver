@@ -3,8 +3,8 @@ Supported types
 ===============
 
 Each ClickHouse type is deserialized to a corresponding Python type when SELECT queries are prepared.
-When serializing INSERT queries, clickhouse-driver accepts a broader range of Python types.
-The following ClickHouse types are supported by clickhouse-driver:
+When serializing INSERT queries,  accepts a broader range of Python types.
+The following ClickHouse types are supported by :
 
 
 [U]Int8/16/32/64/128/256
@@ -126,11 +126,11 @@ SELECT type: :class:`str`/:func:`basestring <basestring>`.
         >>> client.execute('SELECT * FROM test')
         [('foo',), ('bar',), ('foo',)]
 
-Currently clickhouse-driver can't handle empty enum value due to Python's `Enum` mechanics.
+Currently  can't handle empty enum value due to Python's `Enum` mechanics.
 Enum member name must be not empty. See `issue`_ and  `workaround`_.
 
-.. _issue: https://github.com/mymarilyn/clickhouse-driver/issues/48
-.. _workaround: https://github.com/mymarilyn/clickhouse-driver/issues/48#issuecomment-412480613
+.. _issue: https://github.com/mymarilyn//issues/48
+.. _workaround: https://github.com/mymarilyn//issues/48#issuecomment-412480613
 
 
 Array(T)
@@ -327,7 +327,7 @@ Inserting data into nested column in ``clickhouse-client``:
 
       1 rows in set. Elapsed: 0.003 sec.
 
-Inserting data into nested column with ``clickhouse-driver``:
+Inserting data into nested column with ````:
 
     .. code-block:: python
 
@@ -383,7 +383,7 @@ Inserting data into nested column in ``clickhouse-client``:
 
       1 rows in set. Elapsed: 0.003 sec.
 
-Inserting data into nested column with ``clickhouse-driver``:
+Inserting data into nested column with ````:
 
     .. code-block:: python
 

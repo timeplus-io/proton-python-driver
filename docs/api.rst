@@ -3,7 +3,7 @@
 API
 ===
 
-.. module:: clickhouse_driver
+.. module:: proton_driver
 
 This part of the documentation covers basic classes of the driver: Client, Connection and others.
 
@@ -21,7 +21,7 @@ Client
 Connection
 ----------
 
-.. autoclass:: clickhouse_driver.connection.Connection
+.. autoclass:: proton_driver.connection.Connection
    :members:
    :inherited-members:
 
@@ -31,7 +31,7 @@ Connection
 QueryResult
 -----------
 
-.. autoclass:: clickhouse_driver.result.QueryResult
+.. autoclass:: proton_driver.result.QueryResult
    :members:
    :inherited-members:
 
@@ -41,7 +41,7 @@ QueryResult
 ProgressQueryResult
 -------------------
 
-.. autoclass:: clickhouse_driver.result.ProgressQueryResult
+.. autoclass:: proton_driver.result.ProgressQueryResult
    :members:
    :inherited-members:
 
@@ -51,6 +51,6 @@ ProgressQueryResult
 IterQueryResult
 ---------------
 
-.. autoclass:: clickhouse_driver.result.IterQueryResult
+.. autoclass:: proton_driver.result.IterQueryResult
    :members:
    :inherited-members:

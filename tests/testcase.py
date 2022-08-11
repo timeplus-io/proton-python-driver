@@ -3,7 +3,7 @@ from contextlib import contextmanager
 import subprocess
 from unittest import TestCase
 
-from clickhouse_driver.client import Client
+from proton_driver.client import Client
 from tests import log
 from tests.util import skip_by_server_version
 

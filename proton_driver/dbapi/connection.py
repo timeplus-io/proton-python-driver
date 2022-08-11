@@ -12,7 +12,7 @@ class Connection(object):
     do not initiate actual connections to the ClickHouse server.
 
     See parameters description in
-    :data:`~clickhouse_driver.connection.Connection`.
+    :data:`~proton_driver.connection.Connection`.
     """
     def __init__(self, dsn=None, host=None,
                  user=defines.DEFAULT_USER, password=defines.DEFAULT_PASSWORD,
@@ -57,7 +57,7 @@ class Connection(object):
     def close(self):
         """
         Close the connection now. The connection will be unusable from this
-        point forward; an :data:`~clickhouse_driver.dbapi.Error` (or subclass)
+        point forward; an :data:`~proton_driver.dbapi.Error` (or subclass)
         exception will be raised if any operation is attempted with the
         connection. The same applies to all cursor objects trying to use the
         connection.

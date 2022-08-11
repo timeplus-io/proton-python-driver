@@ -1,27 +1,27 @@
 ClickHouse Python Driver
 ========================
 
-.. image:: https://img.shields.io/pypi/v/clickhouse-driver.svg
-    :target: https://pypi.org/project/clickhouse-driver
+.. image:: https://img.shields.io/pypi/v/.svg
+    :target: https://pypi.org/project/
 
-.. image:: https://coveralls.io/repos/github/mymarilyn/clickhouse-driver/badge.svg?branch=master
-    :target: https://coveralls.io/github/mymarilyn/clickhouse-driver?branch=master
+.. image:: https://coveralls.io/repos/github/timeplus//badge.svg?branch=master
+    :target: https://coveralls.io/github/timeplus/?branch=master
 
-.. image:: https://img.shields.io/pypi/l/clickhouse-driver.svg
-    :target: https://pypi.org/project/clickhouse-driver
+.. image:: https://img.shields.io/pypi/l/.svg
+    :target: https://pypi.org/project/
 
-.. image:: https://img.shields.io/pypi/pyversions/clickhouse-driver.svg
-    :target: https://pypi.org/project/clickhouse-driver
+.. image:: https://img.shields.io/pypi/pyversions/.svg
+    :target: https://pypi.org/project/
 
-.. image:: https://img.shields.io/pypi/dm/clickhouse-driver.svg
-    :target: https://pypi.org/project/clickhouse-driver
+.. image:: https://img.shields.io/pypi/dm/.svg
+    :target: https://pypi.org/project/
 
-.. image:: https://github.com/mymarilyn/clickhouse-driver/actions/workflows/actions.yml/badge.svg
-   :target: https://github.com/mymarilyn/clickhouse-driver/actions/workflows/actions.yml
+.. image:: https://github.com/timeplus//actions/workflows/actions.yml/badge.svg
+   :target: https://github.com/timeplus//actions/workflows/actions.yml
 
 ClickHouse Python Driver with native (TCP) interface support.
 
-Asynchronous wrapper is available here: https://github.com/mymarilyn/aioch
+Asynchronous wrapper is available here: https://github.com/timeplus/aioch
 
 Features
 ========
@@ -70,7 +70,7 @@ Features
 Documentation
 =============
 
-Documentation is available at https://clickhouse-driver.readthedocs.io.
+Documentation is available at https://.readthedocs.io.
 
 Usage
 =====
@@ -84,7 +84,7 @@ Pure Client example:
 
     .. code-block:: python
 
-        >>> from clickhouse_driver import Client
+        >>> from proton_driver import Client
         >>>
         >>> client = Client('localhost')
         >>>
@@ -114,7 +114,7 @@ DB API example:
 
     .. code-block:: python
 
-        >>> from clickhouse_driver import connect
+        >>> from proton_driver import connect
         >>>
         >>> conn = connect('clickhouse://localhost')
         >>> cursor = conn.cursor()

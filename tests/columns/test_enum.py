@@ -1,7 +1,7 @@
 from enum import IntEnum
 
 from tests.testcase import BaseTestCase
-from clickhouse_driver import errors
+from proton_driver import errors
 
 
 class A(IntEnum):

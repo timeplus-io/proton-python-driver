@@ -1,4 +1,4 @@
-from clickhouse_driver.errors import ServerException, ErrorCodes
+from proton_driver.errors import ServerException, ErrorCodes
 from tests.testcase import BaseTestCase
 from tests.util import require_server_version
 

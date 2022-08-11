@@ -19,7 +19,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 def read_version():
     regexp = re.compile(r'^VERSION\W*=\W*\(([^\(\)]*)\)')
-    init_py = os.path.join(here, 'clickhouse_driver', '__init__.py')
+    init_py = os.path.join(here, 'proton_driver', '__init__.py')
     with open(init_py, encoding='utf-8') as f:
         for line in f:
             match = regexp.match(line)
@@ -27,7 +27,7 @@ def read_version():
                 return match.group(1).replace(', ', '.')
         else:
             raise RuntimeError(
-                'Cannot find version in clickhouse_driver/__init__.py'
+                'Cannot find version in proton_driver/__init__.py'
             )
 
 
@@ -38,20 +38,20 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
 ext = '.pyx' if USE_CYTHON else '.c'
 extensions = [
     Extension(
-        'clickhouse_driver.bufferedreader',
-        ['clickhouse_driver/bufferedreader' + ext]
+        'proton_driver.bufferedreader',
+        ['proton_driver/bufferedreader' + ext]
     ),
     Extension(
-        'clickhouse_driver.bufferedwriter',
-        ['clickhouse_driver/bufferedwriter' + ext]
+        'proton_driver.bufferedwriter',
+        ['proton_driver/bufferedwriter' + ext]
     ),
     Extension(
-        'clickhouse_driver.columns.largeint',
-        ['clickhouse_driver/columns/largeint' + ext]
+        'proton_driver.columns.largeint',
+        ['proton_driver/columns/largeint' + ext]
     ),
     Extension(
-        'clickhouse_driver.varint',
-        ['clickhouse_driver/varint' + ext]
+        'proton_driver.varint',
+        ['proton_driver/varint' + ext]
     )
 ]
 
@@ -63,13 +63,13 @@ if USE_CYTHON:
     extensions = cythonize(extensions, compiler_directives=compiler_directives)
 
 setup(
-    name='clickhouse-driver',
+    name='proton_driver',
     version=read_version(),
 
-    description='Python driver with native interface for ClickHouse',
+    description='Python driver with native interface for Proton, it is based on the clickhouse-driver, and for timeplus internal test only, to avoid conflict of the python driver, so renamed the project, the original auther is Konstantin Lebedev',
     long_description=long_description,
 
-    url='https://github.com/mymarilyn/clickhouse-driver',
+    url='https://github.com/timeplus/proton-python-driver',
 
     author='Konstantin Lebedev',
     author_email='kostyan.lebedev@gmail.com',
@@ -111,10 +111,10 @@ setup(
         'Topic :: Scientific/Engineering :: Information Analysis'
     ],
 
-    keywords='ClickHouse db database cloud analytics',
+    keywords='Proton db database cloud analytics',
 
     project_urls={
-        'Documentation': 'https://clickhouse-driver.readthedocs.io',
+        'Documentation': 'https://proton-driver.readthedocs.io',
     },
     packages=find_packages('.', exclude=['tests*']),
     python_requires='>=3.4, <4',

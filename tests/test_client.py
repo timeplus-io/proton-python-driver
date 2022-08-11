@@ -1,10 +1,10 @@
 import ssl
 
-from clickhouse_driver import Client
-from clickhouse_driver.compression.lz4 import Compressor as LZ4Compressor
-from clickhouse_driver.compression.lz4hc import Compressor as LZHC4Compressor
-from clickhouse_driver.compression.zstd import Compressor as ZSTDCompressor
-from clickhouse_driver.protocol import Compression
+from proton_driver import Client
+from proton_driver.compression.lz4 import Compressor as LZ4Compressor
+from proton_driver.compression.lz4hc import Compressor as LZHC4Compressor
+from proton_driver.compression.zstd import Compressor as ZSTDCompressor
+from proton_driver.protocol import Compression
 from tests.numpy.util import check_numpy
 from tests.testcase import TestCase
 
