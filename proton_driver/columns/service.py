@@ -66,6 +66,7 @@ def get_column_by_spec(spec, column_options, use_numpy=None):
 
     def create_column_with_options(x):
         return get_column_by_spec(x, column_options, use_numpy=use_numpy)
+   
 
     if spec == 'string' or spec.startswith('fixed_string'):
         return create_string_column(spec, column_options)
