@@ -120,7 +120,7 @@ cdef class BufferedReader(object):
 
             # Decoding pure c strings in Cython is faster than in pure Python.
             # We need to copy it into buffer for adding null symbol at the end.
-            # In ClickHouse block there is no null
+            # In Proton block there is no null
             if right > self.current_buffer_size:
                 if c_encoding:
                     memcpy(&c_string[bytes_read], &buffer_ptr[self.position],

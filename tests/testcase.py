@@ -3,7 +3,7 @@ from contextlib import contextmanager
 import subprocess
 from unittest import TestCase
 
-from clickhouse_driver.client import Client
+from proton_driver.client import Client
 from tests import log
 from tests.util import skip_by_server_version
 
@@ -19,7 +19,7 @@ class BaseTestCase(TestCase):
     required_server_version = None
     server_version = None
 
-    clickhouse_client_binary = file_config.get('db', 'client')
+    proton_client_binary = file_config.get('db', 'client')
     host = file_config.get('db', 'host')
     port = file_config.getint('db', 'port')
     database = file_config.get('db', 'database')
@@ -36,7 +36,7 @@ class BaseTestCase(TestCase):
             database = cls.database
 
         args = [
-            cls.clickhouse_client_binary,
+            cls.proton_client_binary,
             '--database', database,
             '--host', cls.host,
             '--port', str(cls.port),

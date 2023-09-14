@@ -1,16 +1,16 @@
 version: '3'
 
 services:
-  clickhouse-server:
-    image: "$ORG/clickhouse-server:$VERSION"
-    container_name: test-clickhouse-server
+  proton-server:
+    image: "$ORG/proton-server:$VERSION"
+    container_name: test-proton-server
     environment:
       - TZ=Europe/Moscow
     ports:
       - "127.0.0.1:9000:9000"
 
-  clickhouse-client:
-    image: "$ORG/clickhouse-server:$VERSION"
-    container_name: test-clickhouse-client
+  proton-client:
+    image: "$ORG/proton:$VERSION"
+    container_name: test-proton-client
     entrypoint: /bin/sh
     command: [-c, 'while :; do sleep 1; done']

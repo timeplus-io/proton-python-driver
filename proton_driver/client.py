@@ -19,7 +19,7 @@ from .util.helpers import column_chunks, chunks, asbool
 
 class Client(object):
     """
-    Client for communication with the ClickHouse server.
+    Client for communication with the Proton server.
     Single connection is established per each connected instance of the client.
 
     :param settings: Dictionary of settings that passed to every query (except
@@ -28,7 +28,7 @@ class Client(object):
                      `ClickHouse docs
                      <https://clickhouse.tech/docs/en/operations/settings/settings/>`_.
     :param \\**kwargs: All other args are passed to the
-                       :py:class:`~clickhouse_driver.connection.Connection`
+                       :py:class:`~proton_driver.connection.Connection`
                        constructor.
 
     The following keys when passed in ``settings`` are used for configuring the
@@ -257,7 +257,7 @@ class Client(object):
         :param external_tables: external tables to send.
                                 Defaults to ``None`` (no external tables).
         :param query_id: the query identifier. If no query id specified
-                         ClickHouse server will generate it.
+                         Proton server will generate it.
         :param settings: dictionary of query settings.
                          Defaults to ``None`` (no additional settings).
         :param types_check: enables type checking of data for INSERT queries.
@@ -321,7 +321,7 @@ class Client(object):
         :param external_tables: external tables to send.
                                 Defaults to ``None`` (no external tables).
         :param query_id: the query identifier. If no query id specified
-                         ClickHouse server will generate it.
+                         Proton server will generate it.
         :param settings: dictionary of query settings.
                          Defaults to ``None`` (no additional settings).
         :param types_check: enables type checking of data for INSERT queries.
@@ -359,7 +359,7 @@ class Client(object):
         :param external_tables: external tables to send.
                                 Defaults to ``None`` (no external tables).
         :param query_id: the query identifier. If no query id specified
-                         ClickHouse server will generate it.
+                         Proton server will generate it.
         :param settings: dictionary of query settings.
                          Defaults to ``None`` (no additional settings).
         :param types_check: enables type checking of data for INSERT queries.
@@ -388,7 +388,7 @@ class Client(object):
         :param external_tables: external tables to send.
                                 Defaults to ``None`` (no external tables).
         :param query_id: the query identifier. If no query id specified
-                         ClickHouse server will generate it.
+                         Proton server will generate it.
         :param settings: dictionary of query settings.
                          Defaults to ``None`` (no additional settings).
         :return: pandas DataFrame.
@@ -422,7 +422,7 @@ class Client(object):
         :param external_tables: external tables to send.
                                 Defaults to ``None`` (no external tables).
         :param query_id: the query identifier. If no query id specified
-                         ClickHouse server will generate it.
+                         Proton server will generate it.
         :param settings: dictionary of query settings.
                          Defaults to ``None`` (no additional settings).
         :return: number of inserted rows.
@@ -608,12 +608,12 @@ class Client(object):
 
         For example::
 
-            clickhouse://[user:password]@localhost:9000/default
-            clickhouses://[user:password]@localhost:9440/default
+            proton://[user:password]@localhost:9000/default
+            protons://[user:password]@localhost:9440/default
 
         Three URL schemes are supported:
-            clickhouse:// creates a normal TCP socket connection
-            clickhouses:// creates a SSL wrapped TCP socket connection
+            proton:// creates a normal TCP socket connection
+            protons:// creates a SSL wrapped TCP socket connection
 
         Any additional querystring arguments will be passed along to
         the Connection class's initializer.
@@ -638,7 +638,7 @@ class Client(object):
         if url.password is not None:
             kwargs['password'] = unquote(url.password)
 
-        if url.scheme == 'clickhouses':
+        if url.scheme == 'protons':
             kwargs['secure'] = True
 
         compression_algs = {'lz4', 'lz4hc', 'zstd'}

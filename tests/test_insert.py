@@ -1,8 +1,8 @@
 from datetime import date
 
 from tests.testcase import BaseTestCase
-from clickhouse_driver import errors
-from clickhouse_driver.errors import ServerException
+from proton_driver import errors
+from proton_driver.errors import ServerException
 
 
 class InsertTestCase(BaseTestCase):

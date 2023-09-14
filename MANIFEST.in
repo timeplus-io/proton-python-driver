@@ -1,1 +1,1 @@
-recursive-include clickhouse_driver *.pyx
+recursive-include proton_driver *.pyx

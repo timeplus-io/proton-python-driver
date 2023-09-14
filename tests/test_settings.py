@@ -1,4 +1,4 @@
-from clickhouse_driver.errors import ServerException, ErrorCodes
+from proton_driver.errors import ServerException, ErrorCodes
 from tests.testcase import BaseTestCase
 from tests.util import require_server_version
 
@@ -73,7 +73,7 @@ class SettingTestCase(BaseTestCase):
         # For both cases unknown setting will be ignored:
         # - rev >= DBMS_MIN_REVISION_WITH_SETTINGS_SERIALIZED_AS_STRINGS
         #   the setting will be ignored by the server with the warning message
-        #   (since clickhouse-server does not ignore only important settings,
+        #   (since proton-server does not ignore only important settings,
         #   the one that has important flag)
         # - otherwise the unknown setting will be ignored by the driver.
         settings = {'unknown_setting': 100500}

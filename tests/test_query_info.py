@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 
-from clickhouse_driver import errors
+from proton_driver import errors
 from tests.testcase import BaseTestCase
 
 

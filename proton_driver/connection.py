@@ -76,10 +76,10 @@ class ServerInfo(object):
 
 class Connection(object):
     """
-    Represents connection between client and ClickHouse server.
+    Represents connection between client and Proton server.
 
-    :param host: host with running ClickHouse server.
-    :param port: port ClickHouse server is bound to.
+    :param host: host with running Proton server.
+    :param port: port Proton server is bound to.
                  Defaults to ``9000`` if connection is not secured and
                  to ``9440`` if connection is secured.
     :param database: database connect to. Defaults to ``'default'``.
@@ -147,7 +147,7 @@ class Connection(object):
 
         if alt_hosts:
             for host in alt_hosts.split(','):
-                url = urlparse('clickhouse://' + host)
+                url = urlparse('proton://' + host)
                 self.hosts.append((url.hostname, url.port or default_port))
 
         self.database = database

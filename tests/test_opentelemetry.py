@@ -15,7 +15,7 @@ class OpenTelemetryTestCase(BaseTestCase):
 
         }
         with self.created_client(settings=settings) as client:
-            with capture_logging('clickhouse_driver.log', 'INFO') as buffer:
+            with capture_logging('proton_driver.log', 'INFO') as buffer:
                 settings = {'send_logs_level': 'trace'}
                 query = 'SELECT 1'
                 client.execute(query, settings=settings)
@@ -38,7 +38,7 @@ class OpenTelemetryTestCase(BaseTestCase):
 
         }
         with self.created_client(settings=settings) as client:
-            with capture_logging('clickhouse_driver.log', 'INFO') as buffer:
+            with capture_logging('proton_driver.log', 'INFO') as buffer:
                 settings = {'send_logs_level': 'trace'}
                 query = 'SELECT 1'
                 client.execute(query, settings=settings)
