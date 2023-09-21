@@ -56,3 +56,17 @@ Streaming Query
   for row in rows:
       print(row)
 
+
+the output of the code will be something like following, as for streaming query is unbouded, you can add your flow control to terminate the loop.
+
+.. code-block:: shell
+
+  ('device0', 747, 0.0, 99.5999984741211)
+  ('device1', 723, 0.10000000149011612, 99.30000305175781)
+  ('device3', 768, 0.30000001192092896, 99.9000015258789)
+  ('device2', 762, 0.20000000298023224, 99.80000305175781)
+  ('device0', 1258, 0.0, 99.5999984741211)
+  ('device1', 1216, 0.10000000149011612, 99.69999694824219)
+  ('device3', 1276, 0.30000001192092896, 99.9000015258789)
+  ('device2', 1250, 0.20000000298023224, 99.80000305175781)
+
