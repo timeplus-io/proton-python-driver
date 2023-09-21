@@ -1,7 +1,7 @@
 from io import BytesIO
 from unittest import TestCase
 
-from clickhouse_driver.varint import read_varint, write_varint
+from proton_driver.varint import read_varint, write_varint
 
 
 class VarIntTestCase(TestCase):

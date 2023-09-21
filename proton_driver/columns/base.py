@@ -137,9 +137,9 @@ class FormatColumn(Column):
 
 
 # How to write new column?
-# - Check ClickHouse documentation for column
+# - Check Proton documentation for column
 # - Wireshark and tcpdump are your friends.
-# - Use `clickhouse-client --compression 0` to see what's going on data
+# - Use `proton-client --compression 0` to see what's going on data
 #   transmission.
 # - Check for similar existing columns and tests.
 # - Use `FormatColumn` for columns that use "simple" types under the hood.

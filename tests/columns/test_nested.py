@@ -1,6 +1,6 @@
 from tests.testcase import BaseTestCase
 from tests.util import require_server_version
-from clickhouse_driver.columns import nestedcolumn
+from proton_driver.columns import nestedcolumn
 
 
 class NestedTestCase(BaseTestCase):

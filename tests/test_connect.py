@@ -3,11 +3,11 @@ import socket
 from io import BytesIO
 from unittest.mock import patch
 
-from clickhouse_driver import errors
-from clickhouse_driver.client import Client
-from clickhouse_driver.protocol import ClientPacketTypes, ServerPacketTypes
-from clickhouse_driver.bufferedreader import BufferedReader
-from clickhouse_driver.writer import write_binary_str
+from proton_driver import errors
+from proton_driver.client import Client
+from proton_driver.protocol import ClientPacketTypes, ServerPacketTypes
+from proton_driver.bufferedreader import BufferedReader
+from proton_driver.writer import write_binary_str
 from tests.testcase import BaseTestCase
 from unittest import TestCase
 
@@ -195,7 +195,7 @@ class ConnectTestCase(BaseTestCase):
     def test_unknown_packet(self):
         self.client.execute('SELECT 1')
 
-        with patch('clickhouse_driver.connection.read_varint') as read_mock, \
+        with patch('proton_driver.connection.read_varint') as read_mock, \
                 patch.object(self.client.connection, 'force_connect'):
             read_mock.return_value = 42
 
@@ -210,7 +210,7 @@ class ConnectTestCase(BaseTestCase):
             )
 
     def test_unknown_packet_on_connect(self):
-        with patch('clickhouse_driver.connection.read_varint') as read_mock:
+        with patch('proton_driver.connection.read_varint') as read_mock:
             read_mock.return_value = 42
 
             error = errors.UnexpectedPacketFromServerError

@@ -42,7 +42,7 @@ class LowCardinalityColumn(Column):
         return read_binary_uint64(buf)
 
     def write_state_prefix(self, buf):
-        # KeysSerializationVersion. See ClickHouse docs.
+        # KeysSerializationVersion. See Proton docs.
         write_binary_int64(1, buf)
 
     def _write_data(self, items, buf):

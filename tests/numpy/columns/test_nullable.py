@@ -9,7 +9,7 @@ except ImportError:
     pd = None
 
 from tests.numpy.testcase import NumpyBaseTestCase
-from clickhouse_driver import errors
+from proton_driver import errors
 
 ErrorCodes = errors.ErrorCodes
 

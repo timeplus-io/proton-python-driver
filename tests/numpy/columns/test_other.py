@@ -1,8 +1,8 @@
 from parameterized import parameterized
 
-from clickhouse_driver import errors
-from clickhouse_driver.columns.service import get_column_by_spec
-from clickhouse_driver.context import Context
+from proton_driver import errors
+from proton_driver.columns.service import get_column_by_spec
+from proton_driver.context import Context
 
 from tests.numpy.testcase import NumpyBaseTestCase
 

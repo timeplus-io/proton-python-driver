@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from clickhouse_driver import errors
+from proton_driver import errors
 from tests.testcase import BaseTestCase
 from tests.util import require_server_version
 

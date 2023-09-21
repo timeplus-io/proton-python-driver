@@ -4,11 +4,11 @@ from contextlib import contextmanager
 import socket
 from unittest.mock import patch
 
-from clickhouse_driver import connect
-from clickhouse_driver.dbapi import (
+from proton_driver import connect
+from proton_driver.dbapi import (
     ProgrammingError, InterfaceError, OperationalError
 )
-from clickhouse_driver.dbapi.extras import DictCursor, NamedTupleCursor
+from proton_driver.dbapi.extras import DictCursor, NamedTupleCursor
 from tests.testcase import BaseTestCase
 
 
@@ -57,7 +57,7 @@ class DBAPITestCase(DBAPITestCaseBase):
 
     def test_from_dsn(self):
         connection = connect(
-            'clickhouse://{user}:{password}@{host}:{port}/{database}'.format(
+            'proton://{user}:{password}@{host}:{port}/{database}'.format(
                 user=self.user, password=self.password,
                 host=self.host, port=self.port, database=self.database
             )
@@ -491,6 +491,6 @@ class NamedTupleCursorFactoryTestCase(DBAPITestCaseBase):
 
             self.assertEqual(cursor.fetchone(), nt(0))
 
-            with patch('clickhouse_driver.dbapi.extras.namedtuple') as nt_mock:
+            with patch('proton_driver.dbapi.extras.namedtuple') as nt_mock:
                 nt_mock.side_effect = ValueError
                 self.assertEqual(cursor.fetchone(), nt(1))

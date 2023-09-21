@@ -184,7 +184,7 @@ class DateTimeTimezonesTestCase(BaseTestCase):
     col_tz_name = 'Asia/Novosibirsk'
     col_tz = timezone(col_tz_name)
 
-    # INSERTs and SELECTs must be the same as clickhouse-client's
+    # INSERTs and SELECTs must be the same as proton-client's
     # if column has no timezone.
 
     def table_columns(self, with_tz=False):

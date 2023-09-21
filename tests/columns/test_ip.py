@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from clickhouse_driver import errors
+from proton_driver import errors
 from ipaddress import IPv6Address, IPv4Address
 
 from tests.testcase import BaseTestCase
