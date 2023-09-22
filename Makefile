@@ -4,4 +4,4 @@ build:
 	python3 -m build
 
 test:
-	pip install ./dist/proton-driver-0.2.4.tar.gz
+	pip install ./dist/timeplus-proton-driver-0.2.7.tar.gz
