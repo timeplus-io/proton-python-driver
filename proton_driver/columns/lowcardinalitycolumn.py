@@ -7,7 +7,7 @@ from .intcolumn import UInt8Column, UInt16Column, UInt32Column, UInt64Column
 
 
 def create_low_cardinality_column(spec, column_by_spec_getter):
-    inner = spec[15:-1]
+    inner = spec[16:-1]
     nested = column_by_spec_getter(inner)
     return LowCardinalityColumn(nested)
 
