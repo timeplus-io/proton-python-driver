@@ -57,7 +57,7 @@ Streaming Query
       print(row)
 
 
-the output of the code will be something like following, as for streaming query is unbouded, you can add your flow control to terminate the loop.
+the output of the code will be something like following, as for streaming query is unbounded, you can add your flow control to terminate the loop.
 
 .. code-block:: shell
 
