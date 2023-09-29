@@ -20,7 +20,7 @@ Installation
 Quick Start
 ------------
 
-1. Run proton with docker, ``docker run -d -p 8463:8463 --pull always --name proton ghcr.io/timeplus-io/proton:develop``
+1. Run proton with docker, ``docker run -d -p 8463:8463 --pull always --name proton ghcr.io/timeplus-io/proton:latest``
 2. Run following python code 
 
 .. code-block:: python
