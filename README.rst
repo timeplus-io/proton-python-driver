@@ -24,8 +24,10 @@ We recommend creating a virtual environment when installing Python dependencies.
 Quick Start
 ------------
 
-1. Run proton with docker, 
+1. Run proton with docker. Make sure the port 8463 is exposed.
+
 .. code-block:: shell
+
   docker run -d -p 8463:8463 --pull always --name proton ghcr.io/timeplus-io/proton:latest
 
 2. Run following python code 
