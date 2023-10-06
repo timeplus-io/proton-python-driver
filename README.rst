@@ -11,6 +11,10 @@ This project provides python driver to interact with Proton, the code is based o
 
 Installation
 ------------
+Proton Python Driver currently supports the following versions of Python: 3.8, 3.9, and 3.10.
+
+Installing with pip
+We recommend creating a virtual environment when installing Python dependencies. For more information on setting up a virtual environment, see the `Python documentation <https://docs.python.org/3.9/tutorial/venv.html>`_.
 
 .. code-block:: shell
 
@@ -20,7 +24,10 @@ Installation
 Quick Start
 ------------
 
-1. Run proton with docker, ``docker run -d -p 8463:8463 --pull always --name proton ghcr.io/timeplus-io/proton:latest``
+1. Run proton with docker, 
+.. code-block:: shell
+  docker run -d -p 8463:8463 --pull always --name proton ghcr.io/timeplus-io/proton:latest
+
 2. Run following python code 
 
 .. code-block:: python
@@ -70,3 +77,13 @@ the output of the code will be something like following, as for streaming query 
   ('device3', 1276, 0.30000001192092896, 99.9000015258789)
   ('device2', 1250, 0.20000000298023224, 99.80000305175781)
 
+Insert Data
+------------
+.. code-block:: python
+
+  from proton_driver import client
+
+  c = client.Client(host='127.0.0.1', port=8463)
+
+  # create a random stream if not exist
+  c.execute("INSERT INTO proton_stream (raw) VALUES",rows) #rows is an array of arrays

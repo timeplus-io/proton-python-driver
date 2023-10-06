@@ -94,3 +94,4 @@ ENV/
 .idea/
 .pypirc
 .vscode/
+.DS_Store
