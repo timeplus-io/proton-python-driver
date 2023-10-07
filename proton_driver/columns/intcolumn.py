@@ -103,8 +103,11 @@ class LargeIntColumn(IntColumn):
     format = 'Q'  # We manually deal with sign in read/write.
     factor = None
 
-    to_quads = None
-    from_quads = None
+    def to_quads(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def from_quads(self, *args, **kwargs):
+        raise NotImplementedError
 
     def write_items(self, items, buf):
         n_items = len(items)
@@ -126,8 +129,11 @@ class Int128Column(LargeIntColumn):
     int_size = 16
     factor = 2
 
-    to_quads = int128_to_quads
-    from_quads = int128_from_quads
+    def to_quads(self, *args, **kwargs):
+        return int128_to_quads(*args, **kwargs)
+
+    def from_quads(self, *args, **kwargs):
+        return int128_from_quads(*args, **kwargs)
 
 
 class UInt128Column(LargeIntColumn):
@@ -135,8 +141,11 @@ class UInt128Column(LargeIntColumn):
     int_size = 16
     factor = 2
 
-    to_quads = uint128_to_quads
-    from_quads = uint128_from_quads
+    def to_quads(self, *args, **kwargs):
+        return uint128_to_quads(*args, **kwargs)
+
+    def from_quads(self, *args, **kwargs):
+        return uint128_from_quads(*args, **kwargs)
 
 
 class Int256Column(LargeIntColumn):
@@ -144,8 +153,11 @@ class Int256Column(LargeIntColumn):
     int_size = 32
     factor = 4
 
-    to_quads = int256_to_quads
-    from_quads = int256_from_quads
+    def to_quads(self, *args, **kwargs):
+        return int256_to_quads(*args, **kwargs)
+
+    def from_quads(self, *args, **kwargs):
+        return int256_from_quads(*args, **kwargs)
 
 
 class UInt256Column(LargeIntColumn):
@@ -153,5 +165,8 @@ class UInt256Column(LargeIntColumn):
     int_size = 32
     factor = 4
 
-    to_quads = uint256_to_quads
-    from_quads = uint256_from_quads
+    def to_quads(self, *args, **kwargs):
+        return uint256_to_quads(*args, **kwargs)
+
+    def from_quads(self, *args, **kwargs):
+        return uint256_from_quads(*args, **kwargs)
