@@ -104,10 +104,10 @@ class LargeIntColumn(IntColumn):
     factor = None
 
     def to_quads(self, *args, **kwargs):
-        return None
+        raise NotImplementedError
 
     def from_quads(self, *args, **kwargs):
-        return None
+        raise NotImplementedError
 
     def write_items(self, items, buf):
         n_items = len(items)
