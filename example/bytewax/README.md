@@ -7,7 +7,10 @@ Inspired by https://bytewax.io/blog/polling-hacker-news, you can call Hacker New
 select raw:id as id, raw:by as by, to_time(raw:time) as time, raw:title as title from hn
 ```
 
-## How to run the demo
+## Run with Docker Compose
+Simply run `docker compose up` in this folder and it will start both Proton and a custom image that leverages bytewax to call Hacker News API and send data to Proton.
+
+## Run without Docker
 
 
 ```shell
@@ -22,14 +25,16 @@ python -m bytewax.run "hackernews:run_hn_flow(0)"
 ```
 It will load ~100 items every 15 second and send the data to Proton.
 
+## How it works
+
 ```python
-flow.output("out", ProtonOutput("hn"))
+flow.output("out", ProtonOutput(HOST, "hn"))
 ```
 `hn` is an example stream name. The `ProtonOutput` will create the stream if it doesn't exist
 ```python
 class _ProtonSink(StatelessSink):
-    def __init__(self, stream: str):
-        self.client=client.Client(host='127.0.0.1', port=8463)
+    def __init__(self, stream: str, host: str):
+        self.client=client.Client(host=HOST, port=8463)
         self.stream=stream
         sql=f"CREATE STREAM IF NOT EXISTS `{stream}` (raw string)"
         self.client.execute(sql)
@@ -46,8 +51,9 @@ def write_batch(self, items):
 
 ```python
 class ProtonOutput(DynamicOutput):
-    def __init__(self, stream: str):
+    def __init__(self, stream: str, host: str):
         self.stream=stream
+        self.host=host
     def build(self, worker_index, worker_count):
         return _ProtonSink(self.stream)
 ```
