@@ -55,5 +55,5 @@ class ProtonOutput(DynamicOutput):
         self.stream=stream
         self.host=host
     def build(self, worker_index, worker_count):
-        return _ProtonSink(self.stream)
+        return _ProtonSink(self.stream, self.host)
 ```
