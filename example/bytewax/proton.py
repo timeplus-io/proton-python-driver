@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
 
 class _ProtonSink(StatelessSink):
-    def __init__(self, stream: str):
-        self.client=client.Client(host='127.0.0.1', port=8463)
+    def __init__(self, stream: str, host: str):
+        self.client=client.Client(host=host, port=8463)
         self.stream=stream
         sql=f"CREATE STREAM IF NOT EXISTS `{stream}` (raw string)"
         logger.debug(sql)
@@ -26,8 +26,9 @@ class _ProtonSink(StatelessSink):
         self.client.execute(sql,rows)
 
 class ProtonOutput(DynamicOutput):
-    def __init__(self, stream: str):
-        self.stream=stream
+    def __init__(self, stream: str, host: str):
+        self.stream = stream
+        self.host = host if host is not None and host != "" else "127.0.0.1"
     
     """Write each output item to Proton on that worker.
 
@@ -43,4 +44,4 @@ class ProtonOutput(DynamicOutput):
 
     def build(self, worker_index, worker_count):
         """See ABC docstring."""
-        return _ProtonSink(self.stream)
+        return _ProtonSink(self.stream, self.host)

@@ -1,6 +1,6 @@
 import requests
 from datetime import datetime, timedelta
-import time, json
+import time, json, os
 from typing import Any, Optional
 
 from bytewax.connectors.periodic import SimplePollingInput
@@ -76,5 +76,5 @@ def run_hn_flow(init_item):
     # traversal function to get the ultimate parent
     flow.map(key_on_parent)
 
-    flow.output("out", ProtonOutput("hn"))
+    flow.output("out", ProtonOutput("hn",os.environ["PROTON_HOST"]))
     return flow
