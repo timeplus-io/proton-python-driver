@@ -63,7 +63,7 @@ if USE_CYTHON:
     extensions = cythonize(extensions, compiler_directives=compiler_directives)
 
 setup(
-    name='timeplus-proton-driver',
+    name='proton-driver',
     version=read_version(),
 
     description='Python driver with native interface for Proton',

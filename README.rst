@@ -1,5 +1,5 @@
 Timeplus Proton Python Driver
-================
+=============================
 
 Introduction
 ------------
@@ -43,7 +43,7 @@ Quick Start
 above code should return ``(1,)`` , which shows that everything is working fine now.
 
 Streaming Query
-------------
+----------------
 
 .. code-block:: python
 
