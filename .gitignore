@@ -95,3 +95,4 @@ ENV/
 .pypirc
 .vscode/
 .DS_Store
+wheelhouse/
