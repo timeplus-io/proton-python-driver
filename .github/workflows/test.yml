@@ -1,0 +1,153 @@
+on: 
+  workflow_dispatch: 
+  pull_request:
+    branches:
+      - develop
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+name: test
+jobs:
+  tests:
+    if: ${{ false }}
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        use-numpy:
+          - 0
+        python-version:
+          - "3.5"
+          - "3.6"
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "pypy-3.6"
+          - "pypy-3.7"
+        proton-version:
+          - "latest"
+        include:
+          - proton-version: "latest"
+            use-numpy: 1
+            python-version: "3.8"
+
+    name: ${{ matrix.python-version }} PROTON=${{ matrix.proton-version }} NUMPY=${{ matrix.use-numpy }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+#      - name: Login to Docker Hub
+#        uses: docker/login-action@v1
+#        with:
+#          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+#          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Install flake8
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install flake8 flake8-print
+      - name: Run flake8
+        run: flake8
+      - name: Start Proton server and client containers
+        run: |
+          echo "VERSION=${{ matrix.proton-version }}" > tests/.env
+          echo "ORG=timeplus" >> tests/.env
+          docker-compose -f tests/docker-compose.yml up -d
+      - name: Setup proton-client proxy for docker
+        run: |
+          # Faking proton-client real communication with container via docker exec.
+          echo -e '#!/bin/bash\n\ndocker exec -e "`env | grep ^TZ=`" test-proton-client proton client "$@"' | sudo tee /usr/local/bin/proton-client > /dev/null
+          sudo chmod +x /usr/local/bin/proton-client
+          # Overriding setup.cfg. Set host=proton-server
+          sed -i 's/^host=localhost$/host=proton-server/' setup.cfg
+          # Make host think that proton-server is localhost
+          echo '127.0.0.1 proton-server' | sudo tee /etc/hosts > /dev/null
+      - name: Build cython extensions with tracing
+        run: CYTHON_TRACE=1 python setup.py build_ext --define CYTHON_TRACE
+        if: ${{ !contains(matrix.python-version, 'pypy') }}
+      - name: Install requirements
+        run: |
+          # Newer coveralls do not work with github actions.
+          pip install 'coveralls<3.0.0'
+          pip install cython
+          python testsrequire.py
+          python setup.py develop
+          # Limit each test time execution.
+          pip install pytest-timeout
+        env:
+          USE_NUMPY: ${{ matrix.use-numpy }}
+      - name: Run tests
+        run: coverage run -m py.test --timeout=10 -v
+        timeout-minutes: 5
+        env:
+          # Set initial TZ for docker exec -e "`env | grep ^TZ`"
+          TZ: UTC
+      - name: Upload coverage
+        run: coveralls
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          COVERALLS_PARALLEL: true
+          COVERALLS_FLAG_NAME: ${{ matrix.python-version }} CH=${{ matrix.proton-version }} NUMPY=${{ matrix.use-numpy }}
+
+  coveralls-finished:
+    name: Indicate completion to coveralls.io
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Finished
+        uses: coverallsapp/github-action@1.1.3
+        with:
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          parallel-finished: true
+
+  valgrind:
+    name: Valgrind check
+    needs: tests
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Install valgrind
+        run: sudo apt-get update && sudo apt-get install -y valgrind
+#      - name: Login to Docker Hub
+#        uses: docker/login-action@v1
+#        with:
+#          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+#          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Start Proton server and client containers
+        run: |
+          echo "VERSION=$VERSION" > tests/.env
+          echo "ORG=timeplus" >> tests/.env
+          docker-compose -f tests/docker-compose.yml up -d
+        env:
+          VERSION: latest
+      - name: Setup proton-client proxy for docker
+        run: |
+          # Faking proton-client real communication with container via docker exec.
+          echo -e '#!/bin/bash\n\ndocker exec -e "`env | grep ^TZ=`" test-proton-client proton-client "$@"' | sudo tee /usr/local/bin/proton-client > /dev/null
+          sudo chmod +x /usr/local/bin/proton-client
+          # Overriding setup.cfg. Set host=proton-server
+          sed -i 's/^host=localhost$/host=proton-server/' setup.cfg
+          # Make host think that proton-server is localhost
+          echo '127.0.0.1 proton-server' | sudo tee /etc/hosts > /dev/null
+      - name: Install requirements
+        run: |
+          python testsrequire.py
+          python setup.py develop
+        env:
+          USE_NUMPY: 1
+      - name: Run tests under valgrind
+        run: valgrind --error-exitcode=1 --suppressions=valgrind.supp py.test -v
+        env:
+          # Set initial TZ for docker exec -e "`env | grep ^TZ`"
+          TZ: UTC
+          USE_NUMPY: 1
+          PYTHONMALLOC: malloc
