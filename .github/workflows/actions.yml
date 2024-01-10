@@ -10,10 +10,28 @@ jobs:
         os: [ ubuntu-20.04 , windows-2019, macos-11 ]
     steps:
       - uses: actions/checkout@v4
+      - name: Get proton-python-driver tag
+        id: get_tag_name
+        if: ${{ !startsWith( matrix.os, 'windows' ) }}
+        run: |
+          VERSION=`grep '^VERSION' proton_driver/__init__.py \
+          | sed 's/^VERSION = (//g' \
+          | sed 's/).*//g' \
+          | sed 's/, /./g'`
+          VERSION=v$VERSION
+          echo $VERSION
+          echo "tag_name=$VERSION" >> $GITHUB_OUTPUT
+      - name: Get proton-python-driver tag(windows)
+        if: ${{ startsWith( matrix.os, 'windows' ) }}
+        id: get_tag_name_win
+        shell: pwsh
+        run: |
+          $VERSION=((Get-Content proton_driver/__init__.py | Select-String -Pattern '^VERSION') -replace "^VERSION = \((\d+), (\d+), (\d+)\)","v`$1.`$2.`$3")
+          Write-Output $VERSION
+          Write-Output "tag_name=$VERSION" >> $env:GITHUB_OUTPUT
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1.2.0
-        if: ${{ matrix.os=='ubuntu-20.04' }}
-        id: qemu
+        if: ${{ startsWith( matrix.os, 'ubuntu' ) }}
         with:
           image: tonistiigi/binfmt:latest
           platforms: all
@@ -27,5 +45,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: wheelhouse/*.whl
-          token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           generate_release_notes: true
+          tag_name: ${{ join(steps.*.outputs.tag_name, '') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
