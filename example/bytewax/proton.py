@@ -1,15 +1,15 @@
 """Output to Timeplus Proton."""
-from bytewax.outputs import DynamicOutput, StatelessSink
+from bytewax.outputs import DynamicSink, StatelessSinkPartition
 from proton_driver import client
 import logging
 
 __all__ = [
-    "ProtonOutput",
+    "ProtonSink",
 ]
 logger = logging.getLogger(__name__)
 # logger.setLevel(logging.DEBUG)
 
-class _ProtonSink(StatelessSink):
+class _ProtonSinkPartition(StatelessSinkPartition):
     def __init__(self, stream: str, host: str):
         self.client=client.Client(host=host, port=8463)
         self.stream=stream
@@ -25,7 +25,7 @@ class _ProtonSink(StatelessSink):
         # logger.debug(f"inserting data {sql}")
         self.client.execute(sql,rows)
 
-class ProtonOutput(DynamicOutput):
+class ProtonSink(DynamicSink):
     def __init__(self, stream: str, host: str):
         self.stream = stream
         self.host = host if host is not None and host != "" else "127.0.0.1"
@@ -44,4 +44,4 @@ class ProtonOutput(DynamicOutput):
 
     def build(self, worker_index, worker_count):
         """See ABC docstring."""
-        return _ProtonSink(self.stream, self.host)
+        return _ProtonSinkPartition(self.stream, self.host)

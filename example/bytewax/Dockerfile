@@ -38,4 +38,4 @@ USER appuser
 COPY . .
 
 # Run the application.
-CMD python -m bytewax.run "hackernews:run_hn_flow(0)"
+CMD python -m bytewax.run hackernews.py
