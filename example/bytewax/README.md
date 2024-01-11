@@ -21,7 +21,7 @@ pip install bytewax==0.18
 pip install requests 
 pip install proton-driver
 
-python -m bytewax.run hackernews
+python -m bytewax.run hackernews.py
 ```
 It will load new items every 15 second and send the data to Proton.
 
@@ -42,7 +42,7 @@ class _ProtonSinkPartition(StatelessSinkPartition):
 ```
 and batch insert data
 ```python
-def write_batch(self, items):
+    def write_batch(self, items):
         rows=[]
         for item in items:
             rows.append([item]) # single column in each row
@@ -69,7 +69,7 @@ First, you will need to follow the setup instructions listed [here](https://gith
 
 start grafana
 
-open grafan (http://localhost:3000) in your browser and add the proton data source.
+open grafana (http://localhost:3000) in your browser and add the proton data source.
 
 in the explore tab, run the query below as a live query.
 
