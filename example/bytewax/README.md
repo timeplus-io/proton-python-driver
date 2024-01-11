@@ -28,9 +28,9 @@ It will load new items every 15 second and send the data to Proton.
 ## How it works
 
 ```python
-flow.output("out", ProtonSink(HOST, "hn"))
+op.output("stories-out", story_stream, ProtonSink("hn_stories", os.environ["PROTON_HOST"]))
 ```
-`hn` is an example stream name. The `ProtonOutput` will create the stream if it doesn't exist
+`hn` is an example stream name. The `ProtonSink` will create the stream if it doesn't exist
 ```python
 class _ProtonSinkPartition(StatelessSinkPartition):
     def __init__(self, stream: str, host: str):
@@ -61,4 +61,23 @@ class ProtonSink(DynamicSink):
     def build(self, worker_index, worker_count):
         """See ABC docstring."""
         return _ProtonSinkPartition(self.stream, self.host)
+```
+
+### Querying and visualizing with Grafana
+
+First, you will need to follow the setup instructions listed [here](https://github.com/timeplus-io/proton/blob/develop/examples/grafana/README.md). Once setup you can
+
+start grafana
+
+open grafan (http://localhost:3000) in your browser and add the proton data source.
+
+in the explore tab, run the query below as a live query.
+
+```
+select 
+  raw:id as story_id,
+  raw:url as url,
+  raw:title as title,
+  raw:by as author  
+from hn_stories 
 ```

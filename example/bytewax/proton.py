@@ -7,7 +7,7 @@ __all__ = [
     "ProtonSink",
 ]
 logger = logging.getLogger(__name__)
-# logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 
 class _ProtonSinkPartition(StatelessSinkPartition):
     def __init__(self, stream: str, host: str):
@@ -18,11 +18,12 @@ class _ProtonSinkPartition(StatelessSinkPartition):
         self.client.execute(sql)
 
     def write_batch(self, items):
+        logger.debug(f"inserting data {items}")
         rows=[]
         for item in items:
             rows.append([item]) # single column in each row
         sql = f"INSERT INTO `{self.stream}` (raw) VALUES"
-        # logger.debug(f"inserting data {sql}")
+        logger.debug(f"inserting data {sql}")
         self.client.execute(sql,rows)
 
 class ProtonSink(DynamicSink):

@@ -2,6 +2,7 @@ import logging
 from datetime import timedelta
 from typing import Optional, Tuple
 import os
+import json
 
 import requests
 from bytewax import operators as op
@@ -53,7 +54,7 @@ def recurse_tree(metadata, og_metadata=None) -> any:
         return (metadata["id"], 
                 {
                     **og_metadata, 
-                    "root_metadata":metadata
+                    "root_id":metadata["id"]
                 }
                 )
 
@@ -63,15 +64,23 @@ def key_on_parent(key__metadata) -> tuple:
     return (str(key), metadata)
 
 
+def format(id__metadata):
+    id, metadata = id__metadata
+    return json.dumps(metadata)
+
 flow = Dataflow("hn_scraper")
 max_id = op.input("in", flow, HNSource(timedelta(seconds=15)))
-ids = op.stateful_map("range", max_id, lambda: None, get_id_stream).then(
+id_stream = op.stateful_map("range", max_id, lambda: None, get_id_stream).then(
     op.flat_map, "strip_key_flatten", lambda key_ids: key_ids[1]).then(
     op.redistribute, "redist")
-items = op.filter_map("meta_download", ids, download_metadata)
-split_stream = op.branch("split_comments", items, lambda item: item[1]["type"] == "story")
-stories = split_stream.trues
-comments = split_stream.falses
-comments = op.map("key_on_parent", comments, key_on_parent)
-op.output("stories-out", stories, ProtonSink("hn_stories", os.environ["PROTON_HOST"]))
-op.output("comments-out", comments, ProtonSink("hn_comments", os.environ["PROTON_HOST"]))
+id_stream = op.filter_map("meta_download", id_stream, download_metadata)
+split_stream = op.branch("split_comments", id_stream, lambda item: item[1]["type"] == "story")
+story_stream = split_stream.trues
+story_stream = op.map("format_stories", story_stream, format)
+comment_stream = split_stream.falses
+comment_stream = op.map("key_on_parent", comment_stream, key_on_parent)
+comment_stream = op.map("format_comments", comment_stream, format)
+op.inspect("stories", story_stream)
+op.inspect("comments", comment_stream)
+op.output("stories-out", story_stream, ProtonSink("hn_stories", os.environ["PROTON_HOST"]))
+op.output("comments-out", comment_stream, ProtonSink("hn_comments", os.environ["PROTON_HOST"]))
