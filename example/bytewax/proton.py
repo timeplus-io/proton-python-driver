@@ -7,7 +7,7 @@ __all__ = [
     "ProtonSink",
 ]
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 class _ProtonSinkPartition(StatelessSinkPartition):
     def __init__(self, stream: str, host: str):

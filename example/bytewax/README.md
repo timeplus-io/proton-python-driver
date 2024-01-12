@@ -8,7 +8,7 @@ select * from hn_stories
 ```
 
 ## Run with Docker Compose
-Simply run `docker compose up` in this folder and it will start both Proton and a custom image that leverages bytewax to call Hacker News API and send data to Proton.
+Simply run `docker compose up` in this folder and it will start both Proton and a custom image that leverages bytewax to call Hacker News API and send data to Proton. A Grafana instance is also pre-configured to visulaize the live data.
 
 ## Run without Docker
 
@@ -37,11 +37,16 @@ CREATE MATERIALIZED VIEW hn_stories AS
 CREATE MATERIALIZED VIEW hn_comments AS
   SELECT to_time(raw:time) AS _tp_time,raw:id::int AS id,raw:root_id::int AS root_id,raw:by AS by, raw FROM hn_comments_raw;
 ```
-
-Finally we can use a simple SQL or complex JOIN to understand the data better, for example:
+Finally we create 2 views to load both incoming data and existin data:
 ```sql
-with story as (select * from hn_stories where _tp_time>earliest_ts()),
-     comment as (select * from hn_comments where _tp_time>earliest_ts())
+CREATE VIEW IF NOT EXISTS story AS SELECT * FROM hn_stories WHERE _tp_time>earliest_ts();
+CREATE VIEW IF NOT EXISTS comment AS SELECT * FROM hn_comments WHERE _tp_time>earliest_ts()
+```
+
+With all those streams and views, you can query the data in whatever ways, e.g.
+```sql
+select * from comment;
+
 select 
     story._tp_time as story_time,comment._tp_time as comment_time,
     story.id as story_id, comment.id as comment_id,
@@ -89,10 +94,4 @@ class ProtonSink(DynamicSink):
 
 ### Querying and visualizing with Grafana
 
-First, you will need to follow the setup instructions listed [here](https://github.com/timeplus-io/proton/blob/develop/examples/grafana/README.md). Once setup you can start Grafana and open Grafana UI at http://localhost:3000 in your browser and add the proton data source.
-
-In the explore tab, run the query below as a live query.
-
-```sql
-select * from hn_comments
-```
+Please try the docker-compose file. The Grafana instance is setup to install [Proton Grafana Data Source Plugin](https://github.com/timeplus-io/proton-grafana-source). Create such a data source and preconfigure a dashboard. Open Grafana UI at http://localhost:3000 in your browser and choose the `Hackernews Live Dashboard`.
