@@ -1,10 +1,10 @@
 # Example to Integrate Bytewax and Proton together
-[proton.py](https://github.com/timeplus-io/proton-python-driver/blob/develop/example/bytewax/proton.py) is a Bytewax output/sink for [Timeplus Proton](https://github.com/timeplus-io/proton) streaming database.
+[proton.py](https://github.com/timeplus-io/proton-python-driver/blob/develop/example/bytewax/proton.py) is a Bytewax sink for [Timeplus Proton](https://github.com/timeplus-io/proton) streaming SQL engine.
 
 Inspired by https://bytewax.io/blog/polling-hacker-news, you can call Hacker News HTTP API with Bytewax and send latest news to Proton for SQL-based analysis, such as
 
 ```sql
-select raw:id as id, raw:by as by, to_time(raw:time) as time, raw:title as title from hn
+select * from hn_stories
 ```
 
 ## Run with Docker Compose
@@ -17,9 +17,7 @@ Simply run `docker compose up` in this folder and it will start both Proton and 
 python3.10 -m venv py310-env
 source py310-env/bin/activate
 #git clone and cd to this proton-python-driver/example/bytewax folder
-pip install bytewax==0.18
-pip install requests 
-pip install proton-driver
+pip install -r requirements.txt
 
 python -m bytewax.run hackernews.py
 ```
@@ -27,10 +25,36 @@ It will load new items every 15 second and send the data to Proton.
 
 ## How it works
 
-```python
-op.output("stories-out", story_stream, ProtonSink("hn_stories", os.environ["PROTON_HOST"]))
+When the Proton server is started, we create 2 streams to receive the raw JSON data pushed from Bytewax.
+```sql
+CREATE STREAM hn_stories_raw(raw string);
+CREATE STREAM hn_comments_raw(raw string);
 ```
-`hn` is an example stream name. The `ProtonSink` will create the stream if it doesn't exist
+Then we create 2 materialized view to extract the key information from the JSON and put into more meaningful columns:
+```sql
+CREATE MATERIALIZED VIEW hn_stories AS
+  SELECT to_time(raw:time) AS _tp_time,raw:id::int AS id,raw:title AS title,raw:by AS by, raw FROM hn_stories_raw;
+CREATE MATERIALIZED VIEW hn_comments AS
+  SELECT to_time(raw:time) AS _tp_time,raw:id::int AS id,raw:root_id::int AS root_id,raw:by AS by, raw FROM hn_comments_raw;
+```
+
+Finally we can use a simple SQL or complex JOIN to understand the data better, for example:
+```sql
+with story as (select * from hn_stories where _tp_time>earliest_ts()),
+     comment as (select * from hn_comments where _tp_time>earliest_ts())
+select 
+    story._tp_time as story_time,comment._tp_time as comment_time,
+    story.id as story_id, comment.id as comment_id,
+    substring(story.title,1,20) as title,substring(comment.raw:text,1,20) as comment
+from story join comment on story.id=comment.root_id;
+```
+
+The key code in hackernews.py:
+```python
+op.output("stories-out", story_stream, ProtonSink("hn_stories", os.environ.get("PROTON_HOST","127.0.0.1")))
+```
+`hn_stories` is the stream name. The `ProtonSink` will create the stream if it doesn't exist.
+
 ```python
 class _ProtonSinkPartition(StatelessSinkPartition):
     def __init__(self, stream: str, host: str):
@@ -65,19 +89,10 @@ class ProtonSink(DynamicSink):
 
 ### Querying and visualizing with Grafana
 
-First, you will need to follow the setup instructions listed [here](https://github.com/timeplus-io/proton/blob/develop/examples/grafana/README.md). Once setup you can
+First, you will need to follow the setup instructions listed [here](https://github.com/timeplus-io/proton/blob/develop/examples/grafana/README.md). Once setup you can start Grafana and open Grafana UI at http://localhost:3000 in your browser and add the proton data source.
 
-start grafana
+In the explore tab, run the query below as a live query.
 
-open grafana (http://localhost:3000) in your browser and add the proton data source.
-
-in the explore tab, run the query below as a live query.
-
-```
-select 
-  raw:id as story_id,
-  raw:url as url,
-  raw:title as title,
-  raw:by as author  
-from hn_stories 
+```sql
+select * from hn_comments
 ```
