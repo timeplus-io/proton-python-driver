@@ -7,8 +7,11 @@ Inspired by https://bytewax.io/blog/polling-hacker-news, you can call Hacker New
 select * from story
 ```
 
-## Run with Docker Compose
-Simply run `docker compose up` in this folder and it will start both Proton and a custom image that leverages bytewax to call Hacker News API and send data to Proton. A Grafana instance is also pre-configured to visulaize the live data.
+## Run with Docker Compose (Highly Recommended)
+Simply run `docker compose up` in this folder and it will start
+1. A Proton instance with pre-configured streams, materialized views and views.
+2. A container that leverages Bytewax to call Hacker News API and send data to Proton.
+3. A pre-configured Grafana instance to visulaize the live data.
 
 ## Run without Docker
 
