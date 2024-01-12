@@ -40,8 +40,7 @@ services:
       GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
       GF_INSTALL_PLUGINS: timeplus-proton-datasource
     volumes:
-      - ./grafana_provisioning:/etc/grafana/provisioning 
-      - ./grafana_provisioning/dashboards:/var/lib/grafana/dashboards    
+      - ./grafana_provisioning:/etc/grafana/provisioning
     depends_on:
       - proton  
 
