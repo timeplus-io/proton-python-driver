@@ -4,7 +4,7 @@
 Inspired by https://bytewax.io/blog/polling-hacker-news, you can call Hacker News HTTP API with Bytewax and send latest news to Proton for SQL-based analysis, such as
 
 ```sql
-select * from hn_stories
+select * from story
 ```
 
 ## Run with Docker Compose
