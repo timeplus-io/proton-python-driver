@@ -23,10 +23,10 @@ source py310-env/bin/activate
 #git clone and cd to this proton-python-driver/example/bytewax folder
 pip install -r requirements.txt
 
-python -m bytewax.run hackernews.py
+python -m bytewax.run hackernews.py -w 5
 ```
 
-It will load new items every 15 second and send the data to Proton.
+It will start bytewax with 5 workers and load new items every 15 seconds and send the data to Proton.
 
 ## How it works
 

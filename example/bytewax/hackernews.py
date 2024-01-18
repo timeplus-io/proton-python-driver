@@ -25,7 +25,7 @@ class HNSource(SimplePollingSource):
 
 def get_id_stream(old_max_id, new_max_id) -> Tuple[str,list]:
     if old_max_id is None:
-        # Get the last 10 items on the first run.
+        # Get the last 150 items on the first run.
         old_max_id = new_max_id - 150
     return (new_max_id, range(old_max_id, new_max_id))
 
