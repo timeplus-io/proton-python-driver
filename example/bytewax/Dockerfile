@@ -37,5 +37,5 @@ USER appuser
 # Copy the source code into the container.
 COPY . .
 
-# Run the application.
-CMD python -m bytewax.run hackernews.py
+# Run bytewax with 5 workers to chew through the network requests on startup.
+CMD python -m bytewax.run hackernews.py -w 5
