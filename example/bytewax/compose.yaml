@@ -13,7 +13,7 @@ services:
       interval: 5s
       timeout: 10s
       retries: 3
-      start_period: 15s  
+      start_period: 10s  
       
   hn_stream:
     build:
@@ -34,7 +34,8 @@ services:
       GF_AUTH_ANONYMOUS_ENABLED: 1
       GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
       GF_INSTALL_PLUGINS: timeplus-proton-datasource
+      GF_LOG_LEVEL: error
     volumes:
       - ./grafana_provisioning:/etc/grafana/provisioning
     depends_on:
-      - proton
+      - hn_stream
