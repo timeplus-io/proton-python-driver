@@ -7,7 +7,7 @@ FULLNAME=$(DOCKER_ID_USER)/${IMAGE_NAME}
 .PHONY: service
 
 service:
-	uvicorn server.main:app --port 5001 --host 0.0.0.0 --http h11 --reload
+	uvicorn server.main:app --port 5001 --host 0.0.0.0 --reload
 
 proton:
 	docker run -d -p 8463:8463 --pull always --name proton ghcr.io/timeplus-io/proton:latest

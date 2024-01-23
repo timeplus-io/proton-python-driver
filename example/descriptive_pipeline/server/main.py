@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, HTTPException, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, HTTPException, WebSocketDisconnect, Request, BackgroundTasks
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 import yaml
@@ -194,7 +194,18 @@ def delete_pipeline(name: str):
     return JSONResponse(status_code=204)
 
 
-async def query_stream(name):
+async def query_stream(name, request, background_tasks):
+    async def check_disconnect():
+        while True:
+            await asyncio.sleep(1)
+            disconnected = await request.is_disconnected();
+            if disconnected:
+                query.cancel()
+                logger.info('Client disconnected')
+                break
+
+    background_tasks.add_task(check_disconnect)
+
     query = config_manager.run_pipeline(name)
     header = await query.get_header()
     while True:
@@ -213,17 +224,20 @@ async def query_stream(name):
                 query.cancel()
                 logger.info(f'query cancelled due to {e}' )
                 break
+        
         if query.is_finshed():
             break
-        await asyncio.sleep(1)
+
+        await asyncio.sleep(0.1)
         
 
 @app.get("/queries/{name}")
-def query_pipeline(name: str):
+def query_pipeline(name: str, request: Request , background_tasks: BackgroundTasks):
     if not config_manager.pipeline_exist(name):
         raise HTTPException(status_code=404, detail="pipeline not found")
 
-    return StreamingResponse(query_stream(name), media_type="application/json")
+    return StreamingResponse(query_stream(name, request, background_tasks), media_type="application/json")
+
 
 @app.websocket("/queries/{name}")
 async def websocket_endpoint(name: str, websocket: WebSocket):
@@ -247,7 +261,8 @@ async def websocket_endpoint(name: str, websocket: WebSocket):
                             result[name] = str(m[index]) # convert datetime type to string
                         else:
                             result[name] = m[index]
-                    await websocket.send_text(f'{result}')
+                    
+                    await websocket.send_text(f'{json.dumps(result)}')
                 except Exception:
                     hasError = True
                     query.cancel()
@@ -260,11 +275,13 @@ async def websocket_endpoint(name: str, websocket: WebSocket):
             if query.is_finshed():
                 break
 
-            await asyncio.sleep(1)
-
-        logger.debug('close session')
-        await websocket.close()
-        logger.debug('session closed')
+            await asyncio.sleep(0.1)
 
     except WebSocketDisconnect:
         logger.info('session disconnected')
+    except Exception as e:
+        logger.exception(e)
+    finally:
+        query.cancel()  # Ensure query cancellation even if an exception is raised
+        await websocket.close()
+        logger.debug('session closed')
