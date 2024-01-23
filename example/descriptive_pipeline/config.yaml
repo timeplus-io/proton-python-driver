@@ -1,0 +1,35 @@
+# host: localhost
+# port: 8463
+# db: default
+# user: default
+# password: ""
+
+pipelines:
+  - name: pipeline1
+    sqls:
+      - |
+        CREATE RANDOM STREAM IF NOT EXISTS devices(
+          device string default 'device'||to_string(rand()%4), 
+          temperature float default rand()%1000/10
+        )
+      - |
+        SELECT * FROM devices
+  - name: pipeline2
+    sqls:
+      - |
+        CREATE RANDOM STREAM IF NOT EXISTS devices(
+          device string default 'device'||to_string(rand()%4), 
+          temperature float default rand()%1000/10
+        )
+      - |
+        SELECT 
+          window_start, 
+          count(*) as count 
+        FROM 
+          tumble(devices, 1s) 
+        GROUP BY 
+          window_start
+  - name: pipeline3
+    sqls:
+      - |
+        SELECT 1
