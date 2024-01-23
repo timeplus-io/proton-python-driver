@@ -7,24 +7,28 @@
 pipelines:
   - name: pipeline1
     sqls:
+      - |  
+        DROP STREAM IF EXISTS devices
       - |
         CREATE RANDOM STREAM IF NOT EXISTS devices(
           device string default 'device'||to_string(rand()%4), 
           temperature float default rand()%1000/10
-        )
+        ) SETTINGS eps=100000
       - |
         SELECT * FROM devices
   - name: pipeline2
     sqls:
+      - |  
+        DROP STREAM IF EXISTS devices
       - |
         CREATE RANDOM STREAM IF NOT EXISTS devices(
           device string default 'device'||to_string(rand()%4), 
           temperature float default rand()%1000/10
-        )
+        ) SETTINGS eps=100000
       - |
         SELECT 
           window_start, 
-          count(*) as count 
+          count(*) as count, min(temperature) as min, max(temperature) as max, p99(temperature) as p99
         FROM 
           tumble(devices, 1s) 
         GROUP BY 
