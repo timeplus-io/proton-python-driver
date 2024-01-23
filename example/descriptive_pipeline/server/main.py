@@ -261,7 +261,8 @@ async def websocket_endpoint(name: str, websocket: WebSocket):
                             result[name] = str(m[index]) # convert datetime type to string
                         else:
                             result[name] = m[index]
-                    await websocket.send_text(f'{result}')
+                    
+                    await websocket.send_text(f'{json.dumps(result)}')
                 except Exception:
                     hasError = True
                     query.cancel()
