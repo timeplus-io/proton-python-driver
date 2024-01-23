@@ -103,6 +103,9 @@ curl http://localhost:5001/queries/pipeline2
 
 this sample is not targeting to provide a high throughput streaming processing pipeline, there is no performance tuning on the code, but there is a k6 test you can run to understand the overall performance of this sample code.
 
+goto `test` folder and run `k6 run script.js` which will show some basic performance of the service.
+
+
 ### WebSocket
 
 ```bash
