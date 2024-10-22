@@ -72,12 +72,12 @@ class QueryInfoTestCase(BaseTestCase):
         self.assertEqual(last_query.elapsed, 0)
 
     def test_last_query_progress_total_rows(self):
-        self.client.execute('SELECT max(number) FROM numbers(10) LIMIT 10')
+        self.client.execute('SELECT number FROM numbers(10) LIMIT 10')
 
         last_query = self.client.last_query
         self.assertIsNotNone(last_query)
         self.assertIsNotNone(last_query.profile_info)
-        self.assertEqual(last_query.profile_info.rows_before_limit, 1)
+        self.assertEqual(last_query.profile_info.rows_before_limit, 10)
 
         self.assertIsNotNone(last_query.progress)
         self.assertEqual(last_query.progress.rows, 10)

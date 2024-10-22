@@ -30,19 +30,19 @@ jobs:
           Write-Output $VERSION
           Write-Output "tag_name=$VERSION" >> $env:GITHUB_OUTPUT
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1.2.0
+        uses: docker/setup-qemu-action@v3
         if: ${{ startsWith( matrix.os, 'ubuntu' ) }}
         with:
           image: tonistiigi/binfmt:latest
           platforms: all
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.2
+        uses: pypa/cibuildwheel@v2.21.3
         with:
           package-dir: .
           output-dir: wheelhouse
           config-file: pyproject.toml
       - name: Release wheels
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: wheelhouse/*.whl
           generate_release_notes: true

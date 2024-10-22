@@ -20,7 +20,7 @@ logger = getLogger()
 
 
 class Pipeline(BaseModel):
-    name: str
+    name: str # noqa
     sqls: list[str] # noqa
 
 

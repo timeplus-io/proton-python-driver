@@ -15,27 +15,18 @@ jobs:
       matrix:
         use-numpy:
           - 0
+          - 1
         python-version:
-          # - "3.5" ,In this old version, example have a syntax error:E999
-          - "3.6"
-          - "3.7"
           - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"
-          - "pypy-3.6"
-          - "pypy-3.7"
-          - "pypy-3.8"
           - "pypy-3.9"
           - "pypy-3.10"
         proton-version:
           - "latest"
-        include:
-          - proton-version: "latest"
-            python-version: "3.8"
-            use-numpy: 1
 
     name: ${{ matrix.python-version }} PROTON=${{ matrix.proton-version }} NUMPY=${{ matrix.use-numpy }}
     steps:

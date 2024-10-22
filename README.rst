@@ -11,7 +11,7 @@ This project provides python driver to interact with Timeplus Proton or Timeplus
 
 Installation
 ------------
-Timeplus Python Driver currently supports the following versions of Python: 3.8, 3.9, 3.10, 3.11 and 3.12.
+Timeplus Python Driver currently supports the following versions of Python: 3.8, 3.9, 3.10, 3.11, 3.12 and 3.13.
 
 Installing with pip
 We recommend creating a virtual environment when installing Python dependencies. For more information on setting up a virtual environment, see the `Python documentation <https://docs.python.org/3.9/tutorial/venv.html>`_.
