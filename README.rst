@@ -92,7 +92,8 @@ Insert Data
 
 Pandas DataFrame
 ----------------
-Big fan of Pandas? We too! You can mix SQL and Pandas API together:
+Big fan of Pandas? We too! You can mix SQL and Pandas API together. Also you can converting query results to a variety of formats(e.g. Numpy Array, Pandas DataFrame, Polars DataFrame, Arrow Table) by DBAPI.
+
 
 .. code-block:: python
 
@@ -128,3 +129,18 @@ Big fan of Pandas? We too! You can mix SQL and Pandas API together:
        df = c.query_dataframe('SELECT * FROM table(test)')
        print(df)
        print(df.describe())
+
+       # Converting query results to a variety of formats with dbapi
+       with connect('proton://localhost') as conn:
+           with conn.cursor() as cur:
+               cur.execute('SELECT * FROM table(test)')
+               print(cur.df()) # Pandas DataFrame
+
+               cur.execute('SELECT * FROM table(test)')
+               print(cur.fetchnumpy()) # Numpy Arrays
+
+               cur.execute('SELECT * FROM table(test)')
+               print(cur.pl()) # Polars DataFrame
+
+               cur.execute('SELECT * FROM table(test)')
+               print(cur.arrow()) # Arrow Table

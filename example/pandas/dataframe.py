@@ -1,7 +1,7 @@
 import pandas as pd
 import time
 
-from proton_driver import client
+from proton_driver import client, connect
 
 if __name__ == "__main__":
     c = client.Client(host='127.0.0.1', port=8463)
@@ -37,3 +37,22 @@ if __name__ == "__main__":
     df = c.query_dataframe('SELECT * FROM table(test)')
     print(df)
     print(df.describe())
+
+    # Converting query results to a variety of formats with dbapi
+    with connect('proton://localhost') as conn:
+        with conn.cursor() as cur:
+            cur.execute('SELECT * FROM table(test)')
+            print('--------------Pandas DataFrame--------------')
+            print(cur.df())
+
+            cur.execute('SELECT * FROM table(test)')
+            print('----------------Numpy Arrays----------------')
+            print(cur.fetchnumpy())
+
+            cur.execute('SELECT * FROM table(test)')
+            print('--------------Polars DataFrame--------------')
+            print(cur.pl())
+
+            cur.execute('SELECT * FROM table(test)')
+            print('-----------------Arrow Table----------------')
+            print(cur.arrow())
