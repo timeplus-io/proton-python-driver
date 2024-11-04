@@ -402,4 +402,7 @@ settings = {
     'format_regexp_escaping_rule': SettingString,
     'format_regexp_skip_unmatched': SettingBool,
     'output_format_enable_streaming': SettingBool,
+
+    'idempotent_id': SettingString,
+    'enable_idempotent_processing': SettingBool,
 }

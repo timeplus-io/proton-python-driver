@@ -208,6 +208,78 @@ class Cursor(object):
         self._rows = []
         return rv
 
+    def df(self):
+        """
+        Fetch all (remaining) rows of a query result, returning them as
+        a pandas DataFrame.
+
+        :return: Pandas DataFrame of fetched rows.
+        """
+        self._check_query_started()
+
+        import pandas as pd
+
+        rv = pd.DataFrame({
+            name: [row[i] for row in self._rows] if name else None
+            for i, name in enumerate(self._columns)
+        })
+        self._rows = []
+        return rv
+
+    def fetchnumpy(self):
+        """
+        Fetch all (remaining) rows of a query result, returning
+        them as a dictionary of NumPy arrays.
+
+        :return: Dictionary of NumPy arrays of fetched rows.
+        """
+        self._check_query_started()
+
+        import numpy as np
+
+        rv = {
+            name: np.array([row[i] for row in self._rows]) if name else None
+            for i, name in enumerate(self._columns)
+        }
+        self._rows = []
+        return rv
+
+    def pl(self):
+        """
+        Fetch all (remaining) rows of a query result, returning them as
+        a Polars DataFrame.
+
+        :return: Polars DataFrame of fetched rows.
+        """
+        self._check_query_started()
+
+        import polars as pl
+
+        rv = pl.DataFrame({
+            name: [row[i] for row in self._rows] if name else None
+            for i, name in enumerate(self._columns)
+        })
+        self._rows = []
+        return rv
+
+    def arrow(self):
+        """
+        Fetch all (remaining) rows of a query result, returning them as
+        a Arrow Table.
+
+        :return: Arrow Table of fetched rows.
+        """
+        self._check_query_started()
+
+        import pyarrow as pa
+
+        rv = pa.table({
+            name: [row[i] for row in self._rows] if name else None
+            for i, name in enumerate(self._columns)
+        })
+        self._rows = []
+        return rv
+
     def setinputsizes(self, sizes):
         # Do nothing.
         pass

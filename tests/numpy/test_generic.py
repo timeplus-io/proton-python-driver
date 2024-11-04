@@ -8,6 +8,9 @@ except ImportError:
 
 from tests.testcase import BaseTestCase
 from tests.numpy.testcase import NumpyBaseTestCase
+from proton_driver import connect
+from datetime import datetime
+from decimal import Decimal
 
 
 class GenericTestCase(NumpyBaseTestCase):
@@ -171,3 +174,110 @@ class NoNumPyTestCase(BaseTestCase):
         self.assertEqual(
             'Extras for NumPy must be installed', str(e.exception)
         )
+
+
+class DataFrameDBAPITestCase(NumpyBaseTestCase):
+    types = \
+        'a int64, b string, c datetime,' \
+        'd fixed_string(10), e decimal(9, 5), f float64,' \
+        'g low_cardinality(string), h nullable(int32)'
+
+    columns = 'a,b,c,d,e,f,g,h'
+    data = [
+        [
+            123, 'abc', datetime(2024, 5, 20, 12, 11, 10),
+            'abcefgcxxx', Decimal('300.42'), 3.402823e12,
+            '127001', 332
+        ],
+        [
+            456, 'cde', datetime(2024, 6, 21, 12, 13, 50),
+            '1234567890', Decimal('171.31'), -3.4028235e13,
+            '127001', None
+        ],
+        [
+            789, 'efg', datetime(1998, 7, 22, 12, 30, 10),
+            'stream sql', Decimal('894.22'), float('inf'),
+            '127001', None
+        ],
+    ]
+
+    def setUp(self):
+        super(DataFrameDBAPITestCase, self).setUp()
+        self.conn = connect('proton://localhost')
+        self.cur = self.conn.cursor()
+        self.cur.execute('DROP STREAM IF EXISTS test')
+        self.cur.execute(f'CREATE STREAM test ({self.types}) ENGINE = Memory')
+        self.cur.execute(
+            f'INSERT INTO test ({self.columns}) VALUES',
+            self.data
+        )
+        self.cur.execute(f'SELECT {self.columns} FROM test')
+
+    def tearDown(self):
+        super(DataFrameDBAPITestCase, self).tearDown()
+        self.cur.execute('DROP STREAM test')
+
+    def test_dbapi_fetchnumpy(self):
+        expect = {
+            col: np.array([row[i] for row in self.data])
+            for i, col in enumerate(self.columns.split(','))
+        }
+        rv = self.cur.fetchnumpy()
+        for key, value in expect.items():
+            self.assertIsNotNone(rv.get(key))
+            self.assertarraysEqual(value, rv[key])
+
+    def test_dbapi_df(self):
+        expect = pd.DataFrame(self.data, columns=self.columns.split(','))
+        df = self.cur.df()
+
+        self.assertIsInstance(df, pd.DataFrame)
+        self.assertEqual(df.shape, (3, 8))
+        self.assertEqual(
+            [type.name for type in df.dtypes],
+            ['int64', 'object', 'datetime64[ns]',
+             'object', 'object', 'float64',
+             'object', 'float64']
+        )
+        self.assertTrue(expect.equals(df))
+
+    def test_dbapi_pl(self):
+        try:
+            import polars as pl
+        except ImportError:
+            self.skipTest('Polars extras are not installed')
+
+        expect = pl.DataFrame({
+            col: [row[i] for row in self.data]
+            for i, col in enumerate(self.columns.split(','))
+        })
+
+        df = self.cur.pl()
+        self.assertIsInstance(df, pl.DataFrame)
+        self.assertEqual(df.shape, (3, 8))
+        self.assertSequenceEqual(
+            df.schema.dtypes(),
+            [pl.Int64, pl.String, pl.Datetime, pl.String,
+             pl.Decimal, pl.Float64, pl.String, pl.Int64]
+        )
+        self.assertTrue(expect.equals(df))
+
+    def test_dbapi_arrow(self):
+        try:
+            import pyarrow as pa
+        except ImportError:
+            self.skipTest('Pyarrow extras are not installed')
+
+        expect = pa.table({
+            col: [row[i] for row in self.data]
+            for i, col in enumerate(self.columns.split(','))
+        })
+        at = self.cur.arrow()
+        self.assertEqual(at.shape, (3, 8))
+        self.assertSequenceEqual(
+            at.schema.types,
+            [pa.int64(), pa.string(), pa.timestamp('us'),
+             pa.string(), pa.decimal128(5, 2), pa.float64(),
+             pa.string(), pa.int64()]
+        )
+        self.assertTrue(expect.equals(at))

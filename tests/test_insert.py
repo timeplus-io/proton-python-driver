@@ -1,5 +1,5 @@
 from datetime import date
-
+from time import sleep
 from tests.testcase import BaseTestCase
 from proton_driver import errors
 from proton_driver.errors import ServerException
@@ -147,6 +147,31 @@ class InsertTestCase(BaseTestCase):
                 'INSERT INTO test (a) VALUES', [(x,) for x in range(5)]
             )
             self.assertEqual(rv, 5)
+
+    def test_idempotent_insert(self):
+        self.client.execute('CREATE STREAM test (i int, v string)')
+
+        data = [
+            (123, 'abc'), (456, 'def'), (789, 'ghi'),
+            (987, 'ihg'), (654, 'fed'), (321, 'cba'),
+        ]
+
+        setting = {
+            'idempotent_id': 'batch1'
+        }
+
+        for _ in range(20):
+            rv = self.client.execute(
+                'INSERT INTO test (i, v) VALUES',
+                data,
+                settings=setting
+            )
+            self.assertEqual(rv, 6)
+        sleep(3)
+        rv = self.client.execute('SELECT count(*) FROM table(test)')
+        self.assertEqual(rv, [(6, )])
+
+        self.client.execute('DROP STREAM test')
 
 
 class InsertColumnarTestCase(BaseTestCase):

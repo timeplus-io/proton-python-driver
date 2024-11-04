@@ -3,7 +3,7 @@ from collections import namedtuple
 from contextlib import contextmanager
 import socket
 from unittest.mock import patch
-
+from time import sleep
 from proton_driver import connect
 from proton_driver.dbapi import (
     ProgrammingError, InterfaceError, OperationalError
@@ -158,6 +158,27 @@ class DBAPITestCase(DBAPITestCaseBase):
         with self.created_cursor() as cursor, self.create_stream('a uint8'):
             cursor.execute('INSERT INTO test VALUES', [[4]])
             self.assertEqual(cursor.rowcount, 1)
+
+    def test_idempotent_insert(self):
+        with self.created_cursor() as cursor:
+            cursor.execute('CREATE STREAM test (i int, v string)')
+            data = [
+                (123, 'abc'), (456, 'def'), (789, 'ghi'),
+                (987, 'ihg'), (654, 'fed'), (321, 'cba'),
+            ]
+            cursor.set_settings(dict(idempotent_id='batch1'))
+            for _ in range(10):
+                cursor.execute(
+                    'INSERT INTO test (i, v) VALUES',
+                    data
+                )
+                self.assertEqual(cursor.rowcount, 6)
+            sleep(3)
+            rv = cursor.execute('SELECT count(*) FROM table(test)')
+            rv = cursor.fetchall()
+            self.assertEqual(rv, [(6,)])
+
+            cursor.execute('DROP STREAM test')
 
     def test_description(self):
         with self.created_cursor() as cursor:
