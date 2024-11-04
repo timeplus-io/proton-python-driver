@@ -38,6 +38,32 @@ if __name__ == "__main__":
     print(df)
     print(df.describe())
 
+    # Also you can use proton settings in DataFrame API like using `execute` function. # noqa
+    # Here's an example with idempotent id.
+
+    # Reset stream
+    c.execute('drop stream if exists test')
+    c.execute(
+        """create stream test (
+                    year int16,
+                    first_name string
+                )"""
+    )
+    settings = dict(use_numpy=True, idempotent_id='batch')
+
+    # Execute multiple insert operations.
+    for _ in range(5):
+        c.insert_dataframe(
+            'INSERT INTO "test" (year, first_name) VALUES',
+            df,
+            settings=settings,
+        )
+    time.sleep(3)
+
+    rv = c.execute('SELECT COUNT(*) FROM table(test)')
+    # Only the first times insert into the historical storage.
+    print(rv)  # (4,)
+
     # Converting query results to a variety of formats with dbapi
     with connect('proton://localhost') as conn:
         with conn.cursor() as cur:
