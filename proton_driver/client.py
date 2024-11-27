@@ -49,6 +49,11 @@ class Client(object):
         * ``quota_key`` -- A string to differentiate quotas when the user have
                            keyed quotas configured on server.
                            New in version *0.2.3*.
+        * ``namedtuple_as_json`` -- Controls named tuple and nested types
+                           deserialization. To interpret these column as
+                           Python tuple set ``namedtuple_as_json``
+                           to ``False``. Default: False.
+                           New in version *0.2.12*.
     """
 
     available_client_settings = (
@@ -58,7 +63,8 @@ class Client(object):
         'use_numpy',
         'opentelemetry_traceparent',
         'opentelemetry_tracestate',
-        'quota_key'
+        'quota_key',
+        'namedtuple_as_json'
     )
 
     def __init__(self, *args, **kwargs):
@@ -85,6 +91,9 @@ class Client(object):
             ),
             'quota_key': self.settings.pop(
                 'quota_key', ''
+            ),
+            'namedtuple_as_json': self.settings.pop(
+                'namedtuple_as_json', False
             )
         }
 

@@ -32,6 +32,7 @@ from .intervalcolumn import (
     IntervalSecondColumn
 )
 from .ipcolumn import IPv4Column, IPv6Column
+from .jsoncolumn import create_json_column
 
 
 column_by_type = {c.ch_type: c for c in [
@@ -64,7 +65,11 @@ def get_column_by_spec(spec, column_options, use_numpy=None):
             logger.warning('NumPy support is not implemented for %s. '
                            'Using generic column', spec)
 
-    def create_column_with_options(x):
+    def create_column_with_options(x, settings=None):
+        if settings:
+            client_settings = column_options['context'].client_settings
+            client_settings.update(settings)
+            column_options['context'].client_settings = client_settings
         return get_column_by_spec(x, column_options, use_numpy=use_numpy)
 
     if spec == 'string' or spec.startswith('fixed_string'):
@@ -80,13 +85,23 @@ def get_column_by_spec(spec, column_options, use_numpy=None):
         return create_decimal_column(spec, column_options)
 
     elif spec.startswith('array'):
-        return create_array_column(spec, create_column_with_options)
+        return create_array_column(
+            spec, create_column_with_options, column_options
+        )
 
     elif spec.startswith('tuple'):
-        return create_tuple_column(spec, create_column_with_options)
+        return create_tuple_column(
+            spec, create_column_with_options, column_options
+        )
+    elif spec.startswith('json'):
+        return create_json_column(
+            spec, create_column_with_options, column_options
+        )
 
     elif spec.startswith('nested'):
-        return create_nested_column(spec, create_column_with_options)
+        return create_nested_column(
+            spec, create_column_with_options, column_options
+        )
 
     elif spec.startswith('nullable'):
         return create_nullable_column(spec, create_column_with_options)
