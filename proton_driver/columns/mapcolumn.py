@@ -1,6 +1,7 @@
 from .base import Column
 from .intcolumn import UInt64Column
 from ..util.helpers import pairwise
+from .util import get_inner_columns
 
 
 class MapColumn(Column):
@@ -51,7 +52,7 @@ class MapColumn(Column):
 
 
 def create_map_column(spec, column_by_spec_getter):
-    key, value = spec[4:-1].split(',')
+    key, value = get_inner_columns('map', spec)
     key_column = column_by_spec_getter(key.strip())
     value_column = column_by_spec_getter(value.strip())
 
