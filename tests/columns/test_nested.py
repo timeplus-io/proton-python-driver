@@ -1,5 +1,9 @@
 from tests.testcase import BaseTestCase
-from proton_driver.columns import nestedcolumn
+from proton_driver.columns.util import (
+    get_inner_spec,
+    get_inner_columns,
+    get_inner_columns_with_types
+)
 
 
 class NestedTestCase(BaseTestCase):
@@ -85,24 +89,24 @@ class NestedTestCase(BaseTestCase):
             )
 
     def test_get_nested_columns(self):
+        spec = 'nested(a tuple(array(int8)),\n b nullable(string))'
+        columns = get_inner_columns('nested', spec)
         self.assertEqual(
-            nestedcolumn.get_nested_columns(
-                'nested(a tuple(array(int8)),\n b nullable(string))',
-            ),
+            columns,
             ['tuple(array(int8))', 'nullable(string)']
         )
 
     def test_get_columns_with_types(self):
+        spec = 'nested(a tuple(array(int8)),\n b nullable(string))'
+        columns = get_inner_columns_with_types('nested', spec)
         self.assertEqual(
-            nestedcolumn.get_columns_with_types(
-                'nested(a tuple(array(int8)),\n b nullable(string))',
-            ),
+            columns,
             [('a', 'tuple(array(int8))'), ('b', 'nullable(string)')]
         )
 
     def test_get_inner_spec(self):
         inner = 'a tuple(array(int8), array(int64)), b nullable(string)'
         self.assertEqual(
-            nestedcolumn.get_inner_spec('nested({}) dummy '.format(inner)),
+            get_inner_spec('nested', 'nested({}) dummy '.format(inner)),
             inner
         )

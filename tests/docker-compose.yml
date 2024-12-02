@@ -10,6 +10,8 @@ services:
       - "127.0.0.1:8463:8463" 
     command: >
       /bin/bash -c "echo sleeping; sleep 2; /entrypoint.sh"
+    volumes:
+      - /mnt/timeplusd:/var/lib/timeplusd
 
   proton-client:
     image: "timeplus/timeplusd:latest"
