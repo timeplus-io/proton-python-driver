@@ -11,7 +11,24 @@ This project provides python driver to interact with Timeplus Proton or Timeplus
 
 Installation
 ------------
-Timeplus Python Driver currently supports the following versions of Python: 3.8, 3.9, 3.10, 3.11, 3.12 and 3.13.
+Timeplus Python Driver currently supports the following versions of Python: 3.8, 3.9, 3.10, 3.11, 3.12, 3.13, and 3.14.
+
+The driver fully supports the free-threaded ``3.14t`` interpreter: all
+compiled extensions declare free-threading compatibility, so the GIL stays
+disabled when the driver is imported. ``cp314t`` wheels are published
+alongside the regular ``cp314`` wheels under the same package name — ``pip``
+on a free-threaded interpreter picks the right wheel automatically.
+
+One caveat: the optional compression extras (``proton-driver[lz4]`` /
+``[zstd]``) are not fully free-threaded yet. ``lz4`` 4.4.5+ already declares
+free-threading support, but both extras also require ``clickhouse-cityhash``,
+which has no free-threaded (``cp314t``) wheels and whose sdist does not
+compile on ``3.14t`` — a free-threaded fork is maintained at
+`timeplus-io/proton-cityhash <https://github.com/timeplus-io/proton-cityhash>`_
+and will replace it in a follow-up release. ``zstd`` ships ``cp314t`` wheels
+but does not declare free-threading support, so importing it re-enables the
+GIL process-wide (everything still works, just without free-threaded
+parallelism). Uncompressed connections — the default — are unaffected.
 
 Installing with pip
 We recommend creating a virtual environment when installing Python dependencies. For more information on setting up a virtual environment, see the `Python documentation <https://docs.python.org/3.9/tutorial/venv.html>`_.
