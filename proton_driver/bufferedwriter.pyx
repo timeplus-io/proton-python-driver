@@ -1,3 +1,4 @@
+# cython: freethreading_compatible = True
 from cpython cimport PyMem_Malloc, PyMem_Free, PyBytes_AsString, \
     PyBytes_Check, PyBytes_FromStringAndSize, PyBytes_AS_STRING, \
     PyBytes_GET_SIZE

@@ -1,3 +1,4 @@
+# cython: freethreading_compatible = True
 from cpython cimport Py_INCREF, PyBytes_FromStringAndSize, PyBytes_AsString
 from cpython.bytearray cimport PyByteArray_AsString
 # Using python's versions of pure c memory management functions for
