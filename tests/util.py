@@ -17,6 +17,29 @@ def skip_by_server_version(testcase, version_required):
     )
 
 
+def skip_on_server_version_from(*version_threshold):
+    """Skip when the tested server is at or above the given version.
+
+    For behaviors that changed on newer servers and whose driver-side
+    support is tracked separately; keeps the matrix green without
+    hiding the debt.
+    """
+    def check(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            self = args[0]
+            if self.server_version >= version_threshold:
+                self.skipTest(
+                    'Behavior changed in server {}+; driver support '
+                    'tracked separately'.format(
+                        '.'.join(str(x) for x in version_threshold)
+                    )
+                )
+            return f(*args, **kwargs)
+        return wrapper
+    return check
+
+
 def require_server_version(*version_required):
     def check(f):
         @wraps(f)

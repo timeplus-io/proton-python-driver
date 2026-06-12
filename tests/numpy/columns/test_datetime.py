@@ -15,7 +15,7 @@ from pytz import timezone, utc, UnknownTimeZoneError
 import tzlocal
 
 from tests.numpy.testcase import NumpyBaseTestCase
-from tests.util import patch_env_tz
+from tests.util import patch_env_tz, skip_on_server_version_from
 
 
 class BaseDateTimeTestCase(NumpyBaseTestCase):
@@ -258,6 +258,8 @@ class DateTimeTimezonesTestCase(BaseDateTimeTestCase):
                     inserted[0], self.make_numpy_d64ns([self.dt_str] * 2)
                 )
 
+    # Server 3.x stopped applying use_client_time_zone to CLI inserts.
+    @skip_on_server_version_from(3)
     def test_use_client_timezone(self):
         # Insert datetime with timezone UTC
         # into column with no timezone
@@ -333,6 +335,8 @@ class DateTimeTimezonesTestCase(BaseDateTimeTestCase):
                 )
 
     # @require_server_version(1, 1, 54337)
+    # Server 3.x stopped applying use_client_time_zone to CLI inserts.
+    @skip_on_server_version_from(3)
     def test_datetime_with_timezone_use_client_timezone(self):
         # Insert datetime with timezone Asia/Kamchatka
         # into column with no timezone

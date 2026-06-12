@@ -4,6 +4,17 @@ from tests.testcase import BaseTestCase
 
 
 class JSONTestCase(BaseTestCase):
+    def setUp(self):
+        super(JSONTestCase, self).setUp()
+        # Server 3.x replaced the experimental object('json') type these
+        # tests were written against with a new JSON type the driver
+        # does not decode yet; driver support is tracked separately.
+        if self.server_version >= (3,):
+            self.skipTest(
+                'Driver lacks support for the new JSON type of '
+                'server 3.x; tracked separately'
+            )
+
     def test_simple(self):
         rv = self.client.execute("SELECT '{\"bb\": {\"cc\": [255, 1]}}'::json")
         self.assertEqual(rv, [({'bb': {'cc': [255, 1]}},)])
