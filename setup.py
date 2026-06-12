@@ -7,6 +7,7 @@ from distutils.extension import Extension
 
 try:
     from Cython.Build import cythonize
+    from Cython import __version__ as cython_version
 except ImportError:
     USE_CYTHON = False
 else:
@@ -36,26 +37,54 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 # Prepare extensions.
 ext = '.pyx' if USE_CYTHON else '.c'
+# Cython 3.1+ compresses the generated string table and decompresses it
+# during module init by importing zlib / bz2 / compression.zstd. That
+# narrows the supported runtime set: minimal or embedded CPython builds
+# without those stdlib modules fail to import the extension. The
+# generated C keeps an uncompressed fallback guarded by the macro below,
+# so defining it to 0 selects the `#else /* compression: none */` branch
+# and the three import-time stdlib dependencies disappear.
+extra_define_macros = [('CYTHON_COMPRESS_STRINGS', '0')]
 extensions = [
     Extension(
         'proton_driver.bufferedreader',
-        ['proton_driver/bufferedreader' + ext]
+        ['proton_driver/bufferedreader' + ext],
+        define_macros=extra_define_macros,
     ),
     Extension(
         'proton_driver.bufferedwriter',
-        ['proton_driver/bufferedwriter' + ext]
+        ['proton_driver/bufferedwriter' + ext],
+        define_macros=extra_define_macros,
     ),
     Extension(
         'proton_driver.columns.largeint',
-        ['proton_driver/columns/largeint' + ext]
+        ['proton_driver/columns/largeint' + ext],
+        define_macros=extra_define_macros,
     ),
     Extension(
         'proton_driver.varint',
-        ['proton_driver/varint' + ext]
+        ['proton_driver/varint' + ext],
+        define_macros=extra_define_macros,
     )
 ]
 
 if USE_CYTHON:
+    # The .pyx sources declare freethreading_compatible, which Cython
+    # releases before 3.1 silently ignore — extensions rebuilt with an
+    # older Cython would re-enable the GIL on free-threaded interpreters.
+    # The committed .c files are generated with Cython 3.2; refuse the
+    # silent downgrade when regenerating. (Standard isolated pip builds
+    # never hit this: with no Cython in the build env the committed .c
+    # files are compiled as-is.)
+    if tuple(
+        int(x) for x in re.match(r'(\d+)\.(\d+)', cython_version).groups()
+    ) < (3, 1):
+        raise RuntimeError(
+            'Building from .pyx sources requires Cython >= 3.1 (found {}):'
+            ' older releases silently ignore the freethreading_compatible'
+            ' directive.'.format(cython_version)
+        )
+
     compiler_directives = {'language_level': '3'}
     if CYTHON_TRACE:
         compiler_directives['linetrace'] = True
@@ -101,6 +130,7 @@ setup(
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
         'Programming Language :: Python :: Implementation :: PyPy',
 
         'Topic :: Database',

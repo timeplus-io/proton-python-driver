@@ -17,7 +17,10 @@ else:
     tests_require.append('lz4')
 
 if USE_NUMPY:
-    tests_require.extend(['numpy', 'pandas'])
+    # pandas 3 changed default dtypes (str columns, datetime64[us]) and
+    # nullable comparison semantics; the driver's dataframe support
+    # targets pandas 2 — pandas 3 support is tracked separately.
+    tests_require.extend(['numpy', 'pandas<3'])
 
 try:
     from pip import main as pipmain

@@ -5,7 +5,7 @@ from pytz import timezone, utc, UnknownTimeZoneError
 import tzlocal
 
 from tests.testcase import BaseTestCase
-from tests.util import patch_env_tz
+from tests.util import patch_env_tz, skip_on_server_version_from
 
 
 class DateTimeTestCase(BaseTestCase):
@@ -226,6 +226,8 @@ class DateTimeTimezonesTestCase(BaseTestCase):
                 inserted = self.client.execute(query)
                 self.assertEqual(inserted, [(self.dt, ), (self.dt, )])
 
+    # Server 3.x stopped applying use_client_time_zone to CLI inserts.
+    @skip_on_server_version_from(3)
     def test_use_client_timezone(self):
         # Insert datetime with timezone UTC
         # into column with no timezone
@@ -295,6 +297,8 @@ class DateTimeTimezonesTestCase(BaseTestCase):
                 self.assertEqual(inserted, [(dt, ), (dt, )])
 
     # @require_server_version(1, 1, 54337)
+    # Server 3.x stopped applying use_client_time_zone to CLI inserts.
+    @skip_on_server_version_from(3)
     def test_datetime_with_timezone_use_client_timezone(self):
         # Insert datetime with timezone Asia/Kamchatka
         # into column with no timezone

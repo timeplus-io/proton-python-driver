@@ -10,8 +10,11 @@ name: test
 jobs:
   tests:
     if: ${{ github.event.action != 'closed' || github.event.pull_request.merged == true }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
+      # Surface every broken matrix entry in one run instead of
+      # cancelling the rest on the first failure.
+      fail-fast: false
       matrix:
         use-numpy:
           - 0
@@ -23,6 +26,7 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
+          - "3.14"
           - "pypy-3.9"
           - "pypy-3.10"
         proton-version:
@@ -64,36 +68,115 @@ jobs:
           sed -i 's/^host=localhost$/host=proton-server/' setup.cfg
           # Make host think that proton-server is localhost
           echo '127.0.0.1 proton-server' | sudo tee /etc/hosts > /dev/null
+      - name: Wait for Proton server
+        run: |
+          # --host proton-server: the proton-client proxy docker-execs
+          # into the client container, where localhost is NOT the server.
+          probe() { proton-client --host proton-server --port 8463 --query "SELECT 1"; }
+          for i in $(seq 1 150); do
+            if probe >/dev/null 2>&1; then
+              echo "server is up (attempt $i)"; exit 0
+            fi
+            if [ $((i % 15)) -eq 0 ]; then
+              echo "still waiting (attempt $i); container: $(docker ps -a --filter name=test-proton-server --format '{{.Status}}')"
+            fi
+            sleep 2
+          done
+          echo "server failed to come up"
+          echo "--- container status:"
+          docker ps -a --filter name=test-proton
+          echo "--- docker logs (tail):"
+          docker logs test-proton-server 2>&1 | tail -50
+          echo "--- server error log (tail):"
+          docker exec test-proton-server tail -100 /var/log/timeplusd-server/timeplusd-server.err.log || true
+          echo "--- last client error:"
+          probe || true
+          exit 1
+        env:
+          TZ: UTC
       - name: Build cython extensions with tracing
         run: CYTHON_TRACE=1 python setup.py build_ext --define CYTHON_TRACE
         if: ${{ !contains(matrix.python-version, 'pypy') }}
       - name: Install requirements
         run: |
-          # Newer coveralls do not work with github actions.
-          pip install 'coveralls<3.0.0'
+          # Modern coveralls works with GitHub Actions and pulls a
+          # coverage release that ships C-tracer wheels — the Cython
+          # coverage plugin needs that tracer.
+          pip install coveralls
           pip install cython
           python testsrequire.py
-          python setup.py develop
+          # pip resolves Requires-Python metadata; the legacy
+          # `setup.py develop` easy_install path ignored it and pulled
+          # tzlocal 5.x (zoneinfo) onto Python 3.8.
+          pip install -e . --no-build-isolation
           # Limit each test time execution.
           pip install pytest-timeout
         env:
           USE_NUMPY: ${{ matrix.use-numpy }}
       - name: Run tests
-        run: coverage run -m pytest --timeout=10 -v
+        # coverage's C tracer doesn't exist on pypy and the Cython
+        # coverage plugin refuses to load without it — run plain pytest
+        # there (no compiled extensions to trace on pypy anyway).
+        run: |
+          if [[ "${{ matrix.python-version }}" == pypy* ]]; then
+            python -m pytest --timeout=10 -v
+          else
+            coverage run -m pytest --timeout=10 -v
+          fi
         timeout-minutes: 5
         env:
           # Set initial TZ for docker exec -e "`env | grep ^TZ`"
           TZ: UTC
       - name: Upload coverage
         run: coveralls
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_PARALLEL: true
           COVERALLS_FLAG_NAME: ${{ matrix.python-version }} CH=${{ matrix.proton-version }} NUMPY=${{ matrix.use-numpy }}
 
+  # Free-threaded 3.14 (cp314t) smoke. Locks in that (a) the wheel builds on
+  # 3.14t, (b) every compiled extension imports with the stdlib compression
+  # modules (zlib / bz2 / compression.zstd / lzma) artificially blocked —
+  # the invariant CYTHON_COMPRESS_STRINGS=0 in setup.py guarantees — and
+  # (c) the GIL stays disabled after import: all four extensions declare
+  # freethreading_compatible, so a single regression here re-enables the
+  # GIL and fails the assert inside tests/smoke_no_compression.py.
+  smoke-ft:
+    name: 3.14t FT build + import smoke
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up free-threaded Python 3.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14t"
+      - name: Install driver (pulls pytz/tzlocal and compiles extensions under 3.14t)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install cython setuptools wheel
+          # Install into site-packages so the smoke script resolves proton_driver
+          # unambiguously regardless of cwd. A plain `build_ext --inplace` would
+          # leave the driver package importable only when cwd==project root.
+          python -m pip install .
+      - name: Report FT runtime state
+        run: |
+          python -c "import sys; print('python', sys.version); print('GIL enabled at startup:', getattr(sys, '_is_gil_enabled', lambda: True)())"
+      - name: Block-import smoke (zlib / bz2 / compression.zstd / lzma)
+        run: python tests/smoke_no_compression.py
+      - name: Threaded extension stress (GIL must stay off)
+        # pytest puts the repo checkout first on sys.path (tests/ is a
+        # package), shadowing the pip-installed driver — so the source
+        # tree needs its own compiled extensions.
+        run: |
+          python setup.py build_ext --inplace
+          python -m pip install pytest
+          python -m pytest tests/test_freethreading.py::ExtensionConcurrencyTestCase -v
+
   coveralls-finished:
     name: Indicate completion to coveralls.io
     needs: tests
+    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
       - name: Finished
@@ -105,7 +188,7 @@ jobs:
   valgrind:
     name: Valgrind check
     needs: tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -136,10 +219,38 @@ jobs:
           sed -i 's/^host=localhost$/host=proton-server/' setup.cfg
           # Make host think that proton-server is localhost
           echo '127.0.0.1 proton-server' | sudo tee /etc/hosts > /dev/null
+      - name: Wait for Proton server
+        run: |
+          # --host proton-server: the proton-client proxy docker-execs
+          # into the client container, where localhost is NOT the server.
+          probe() { proton-client --host proton-server --port 8463 --query "SELECT 1"; }
+          for i in $(seq 1 150); do
+            if probe >/dev/null 2>&1; then
+              echo "server is up (attempt $i)"; exit 0
+            fi
+            if [ $((i % 15)) -eq 0 ]; then
+              echo "still waiting (attempt $i); container: $(docker ps -a --filter name=test-proton-server --format '{{.Status}}')"
+            fi
+            sleep 2
+          done
+          echo "server failed to come up"
+          echo "--- container status:"
+          docker ps -a --filter name=test-proton
+          echo "--- docker logs (tail):"
+          docker logs test-proton-server 2>&1 | tail -50
+          echo "--- server error log (tail):"
+          docker exec test-proton-server tail -100 /var/log/timeplusd-server/timeplusd-server.err.log || true
+          echo "--- last client error:"
+          probe || true
+          exit 1
+        env:
+          TZ: UTC
       - name: Install requirements
         run: |
+          # --no-build-isolation needs setuptools/wheel preinstalled.
+          pip install --upgrade pip setuptools wheel
           python testsrequire.py
-          python setup.py develop
+          pip install -e . --no-build-isolation
         env:
           USE_NUMPY: 1
       - name: Run tests under valgrind

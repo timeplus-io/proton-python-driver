@@ -6,6 +6,11 @@ skip-string-normalization = true
 
 [tool.cibuildwheel]
 build = "*"
+# cibuildwheel 3.x makes PyPy wheels opt-in; re-enable the ones modern
+# toolchains can still build (currently pp311). The pp38-pp310 wheels
+# shipped by 0.2.13 target EOL PyPy releases cibuildwheel no longer
+# supports — those interpreters install from the sdist instead.
+enable = ["pypy"]
 skip = ""
 test-skip = ""
 
@@ -21,7 +26,14 @@ before-all = ""
 before-build = ""
 repair-wheel-command = ""
 
-test-command = ""
+# Smoke-test each built wheel by installing it into a clean env and running
+# the shared block-import script. The script artificially blocks zlib / bz2 /
+# compression.zstd / lzma on sys.meta_path and then imports every compiled
+# extension — that's the invariant CYTHON_COMPRESS_STRINGS=0 in setup.py
+# exists to guarantee. A plain `python -c "import proton_driver"` on a stock
+# runner would trivially pass even if a future Cython regen brought the
+# compressed branches back, because those stdlib modules exist there.
+test-command = "python {project}/tests/smoke_no_compression.py"
 before-test = ""
 test-requires = []
 test-extras = []

@@ -1,5 +1,6 @@
 # coding: utf-8
 import socket
+import sys
 from io import BytesIO
 from unittest.mock import patch
 
@@ -102,6 +103,12 @@ class ConnectTestCase(BaseTestCase):
             rv = self.client.execute('SELECT 1')
             self.assertEqual(rv, [(1, )])
 
+    # Cython 3.2-compiled read_varint cannot resolve a MagicMock's
+    # dynamically-created read_one through pypy's cpyext attribute
+    # lookup; real (non-mock) usage on pypy is covered by the rest
+    # of the suite.
+    @pytest.mark.skipif(sys.implementation.name == 'pypy',
+                        reason='mock attrs invisible to cpyext')
     def test_ping_got_unexpected_package(self):
         self.client.execute('SELECT 1')
 
@@ -118,6 +125,12 @@ class ConnectTestCase(BaseTestCase):
                 self.unexpected_packet_message('Pong', 'Exception')
             )
 
+    # Cython 3.2-compiled read_varint cannot resolve a MagicMock's
+    # dynamically-created read_one through pypy's cpyext attribute
+    # lookup; real (non-mock) usage on pypy is covered by the rest
+    # of the suite.
+    @pytest.mark.skipif(sys.implementation.name == 'pypy',
+                        reason='mock attrs invisible to cpyext')
     def test_eof_on_receive_packet(self):
         self.client.execute('SELECT 1')
 
@@ -128,6 +141,12 @@ class ConnectTestCase(BaseTestCase):
             with self.assertRaises(EOFError):
                 self.client.execute('SELECT 1')
 
+    # Cython 3.2-compiled read_varint cannot resolve a MagicMock's
+    # dynamically-created read_one through pypy's cpyext attribute
+    # lookup; real (non-mock) usage on pypy is covered by the rest
+    # of the suite.
+    @pytest.mark.skipif(sys.implementation.name == 'pypy',
+                        reason='mock attrs invisible to cpyext')
     def test_eof_error_on_ping(self):
         self.client.execute('SELECT 1')
 

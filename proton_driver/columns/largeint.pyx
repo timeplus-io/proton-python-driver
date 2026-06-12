@@ -1,3 +1,4 @@
+# cython: freethreading_compatible = True
 from cpython cimport Py_INCREF
 from cpython.tuple cimport PyTuple_New, PyTuple_SET_ITEM
 

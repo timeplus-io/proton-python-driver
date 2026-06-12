@@ -215,7 +215,7 @@ class DataFrameDBAPITestCase(NumpyBaseTestCase):
 
     def tearDown(self):
         super(DataFrameDBAPITestCase, self).tearDown()
-        self.cur.execute('DROP STREAM test')
+        self.cur.execute('DROP STREAM IF EXISTS test')
 
     def test_dbapi_fetchnumpy(self):
         expect = {

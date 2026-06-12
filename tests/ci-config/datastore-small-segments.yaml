@@ -1,0 +1,10 @@
+# CI override: the default datastore preallocates a 2GB nativelog
+# segment per stream (~17GB total with the system streams), which
+# fills a GitHub runner's ~14GB free disk and kills the job with
+# "No space left on device". Tests need tiny segments only.
+data:
+    datastore:
+        log:
+            segment_size: 67108864 # 64MB
+            min_size_to_keep: 67108864
+            preallocate: false

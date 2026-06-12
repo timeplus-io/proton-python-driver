@@ -7,4 +7,6 @@ per-file-ignores =
     proton_driver/varint.pyx: E225, E226, E227, E999
     # ignore example print warning.
     example/*: T201, T001
+    # standalone smoke script reports its result via print.
+    tests/smoke_no_compression.py: T201
 exclude = venv,.conda,build

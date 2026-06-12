@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+## [0.3.0] - 2026-06-11
+### Added
+- CPython 3.14 support: `cp314` and free-threaded `cp314t` wheels (Cython
+  regenerated with 3.2.4, cibuildwheel 3.4.1).
+- True free-threading support: all compiled extensions declare
+  `freethreading_compatible`, so importing the driver on a 3.14t
+  interpreter keeps the GIL disabled. CI asserts this on every wheel.
+- Threaded stress tests (extension-level and parallel-clients).
+
+### Changed
+- Compiled extensions no longer import stdlib compression modules at
+  init (`CYTHON_COMPRESS_STRINGS=0`), keeping minimal/embedded CPython
+  builds working.
+- Building from `.pyx` sources now requires Cython >= 3.1; older
+  releases silently ignore the `freethreading_compatible` directive.
+  Standard pip installs compile the bundled generated C and are
+  unaffected.
+- PyPy wheels are now published for PyPy 3.11 only; the PyPy 3.8–3.10
+  wheels shipped by 0.2.13 target EOL interpreters that the modern
+  build toolchain no longer supports (the sdist still installs there).
+- The release workflow publishes an sdist again — no release since
+  0.2.10 had shipped one, so interpreters without a prebuilt wheel had
+  no installable artifact. The sdist bundles the pre-generated Cython C
+  and builds without Cython.
+
 ## [0.2.3] - 2022-02-07
 ### Added
 - `tzlocal`>=4.0 support. Pull request [#263](https://github.com/mymarilyn/clickhouse-driver/pull/263) by [azat](https://github.com/azat).

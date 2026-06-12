@@ -10,7 +10,7 @@ from enum import IntEnum, Enum
 from pytz import timezone
 
 from tests.testcase import BaseTestCase
-from tests.util import patch_env_tz
+from tests.util import patch_env_tz, skip_on_server_version_from
 
 
 class ParametersSubstitutionTestCase(BaseTestCase):
@@ -70,6 +70,8 @@ class ParametersSubstitutionTestCase(BaseTestCase):
         rv = self.client.execute(tpl, params)
         self.assertEqual(rv, [(dt, )])
 
+    # Server 3.x changed use_client_time_zone handling for CLI queries.
+    @skip_on_server_version_from(3)
     def test_datetime_with_timezone(self):
         dt = datetime(2017, 7, 14, 5, 40, 0)
         params = {'x': timezone('Asia/Kamchatka').localize(dt)}

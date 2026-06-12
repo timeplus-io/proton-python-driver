@@ -75,6 +75,9 @@ class BaseTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
         version_str = cls.emit_cli('SELECT version()').strip()
+        # Server builds may report a prerelease suffix ('3.3.1-rc.13');
+        # only the numeric release part matters for version gating.
+        version_str = version_str.split('-')[0]
         cls.server_version = tuple(int(x) for x in version_str.split('.'))
 
         super(BaseTestCase, cls).setUpClass()
@@ -96,6 +99,10 @@ class BaseTestCase(TestCase):
 
     def tearDown(self):
         self.client.disconnect()
+        # Tests that fail between CREATE STREAM test and their trailing
+        # DROP leak the stream and cascade STREAM_ALREADY_EXISTS into
+        # every later test; drop defensively.
+        self.emit_cli('DROP STREAM IF EXISTS test')
         super(BaseTestCase, self).tearDown()
 
     @contextmanager
