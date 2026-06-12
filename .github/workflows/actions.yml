@@ -5,9 +5,13 @@ jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    permissions:
+      # The GitHub release is created with the workflow's own token; the
+      # GH_ACCESS_TOKEN PAT this step used through v0.2.13 no longer exists.
+      contents: write
     strategy:
       matrix:
-        os: [ ubuntu-20.04 , windows-2019, macos-12 ]
+        os: [ ubuntu-22.04 , windows-2022, macos-13 ]
     steps:
       - uses: actions/checkout@v4
       - name: Get proton-python-driver tag
@@ -36,11 +40,21 @@ jobs:
           image: tonistiigi/binfmt:latest
           platforms: all
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.21.3
+        # v3.4.1 is the first stable line with CPython 3.14 (incl. cp314t) wheel support.
+        # v2.21.3 predates 3.14 and would silently skip cp314/cp314t targets.
+        uses: pypa/cibuildwheel@v3.4.1
         with:
           package-dir: .
           output-dir: wheelhouse
           config-file: pyproject.toml
+      - name: Store the distribution packages
+        # Upload before the GitHub-release step: if release creation fails,
+        # the wheels still reach publish-to-pypi (and remain downloadable).
+        uses: actions/upload-artifact@v4
+        with:
+          # v4 requires unique artifact names per job; matrix.os keeps them distinct.
+          name: python-package-distributions-${{ matrix.os }}
+          path: wheelhouse/*.whl
       - name: Release wheels
         uses: softprops/action-gh-release@v2
         with:
@@ -48,17 +62,31 @@ jobs:
           generate_release_notes: true
           tag_name: ${{ join(steps.*.outputs.tag_name, '') }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-      - name: Store the distribution packages
-        uses: actions/upload-artifact@v3
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build_sdist:
+    # Interpreters without a published wheel (e.g. EOL PyPy releases that
+    # modern cibuildwheel cannot target) install from this sdist. It bundles
+    # the pre-generated Cython C, so building it needs no Cython.
+    name: Build source distribution
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build sdist
+        run: pipx run build --sdist
+      - name: Store the source distribution
+        uses: actions/upload-artifact@v4
         with:
-          name: python-package-distributions
-          path: wheelhouse/*.whl
-  
+          # Matches the python-package-distributions-* download pattern in
+          # publish-to-pypi alongside the per-OS wheel artifacts.
+          name: python-package-distributions-sdist
+          path: dist/*.tar.gz
+
   publish-to-pypi:
     name: Publish Python distribution to PyPI
     needs:
       - build_wheels
+      - build_sdist
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -67,9 +95,12 @@ jobs:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
     steps:
     - name: Download all the dists
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
-        name: python-package-distributions
+        # v4 download without a name arg fetches every matching artifact; the pattern
+        # joins the per-OS uploads from build_wheels back into a single dist/ tree.
+        pattern: python-package-distributions-*
+        merge-multiple: true
         path: dist/
     - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1

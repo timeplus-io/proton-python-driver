@@ -2,7 +2,7 @@ version: '3'
 
 services:
   proton-server:
-    image: "timeplus/timeplusd:latest"
+    image: "timeplus/timeplusd:cp314t-ft-rebased-0611"
     container_name: test-proton-server
     environment:
       - TZ=Asia/Shanghai
@@ -10,11 +10,16 @@ services:
       - "127.0.0.1:8463:8463" 
     command: >
       /bin/bash -c "echo sleeping; sleep 2; /entrypoint.sh"
+    # No host bind mount for the data dir: newer timeplusd images run as
+    # a non-root user that cannot write a root-owned /mnt/timeplusd; CI
+    # needs no persistence across runs anyway. The config drop-in keeps
+    # nativelog segments small so the server doesn't preallocate ~17GB
+    # and exhaust the runner disk.
     volumes:
-      - /mnt/timeplusd:/var/lib/timeplusd
+      - ./ci-config/datastore-small-segments.yaml:/etc/timeplusd-server/config.d/datastore-small-segments.yaml:ro
 
   proton-client:
-    image: "timeplus/timeplusd:latest"
+    image: "timeplus/timeplusd:cp314t-ft-rebased-0611"
     container_name: test-proton-client
     entrypoint: /bin/sh
     command: [-c, 'while :; do sleep 1; done']
