@@ -26,6 +26,12 @@
   0.2.10 had shipped one, so interpreters without a prebuilt wheel had
   no installable artifact. The sdist bundles the pre-generated Cython C
   and builds without Cython.
+- Linux wheels are built on the `manylinux_2_28` / `musllinux_1_2`
+  images (cibuildwheel 3.x removed `musllinux_1_1`, and the frozen
+  `manylinux2014` images predate Python 3.14). auditwheel still grades
+  each wheel by the symbols it actually needs — the extensions grade to
+  `manylinux2014`/`manylinux_2_17`, so old-glibc compatibility is
+  preserved.
 
 ## [0.2.3] - 2022-02-07
 ### Added

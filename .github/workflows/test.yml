@@ -173,6 +173,27 @@ jobs:
           python -m pip install pytest
           python -m pytest tests/test_freethreading.py::ExtensionConcurrencyTestCase -v
 
+  # The release workflow is the only other place cibuildwheel runs, so its
+  # config rots invisibly: the stale musllinux_1_1 image pin killed release
+  # run 27423060149 at startup despite fully green PR checks. cibuildwheel
+  # resolves every image option upfront (verified: a bad musllinux pin fails
+  # this job in seconds even though it builds a manylinux target), so
+  # building one real wheel here surfaces config breakage — and runs the
+  # in-container block-import smoke test — on every PR instead of at
+  # release time.
+  cibuildwheel-smoke:
+    name: cibuildwheel config + single-wheel build
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build one wheel through cibuildwheel
+        # Keep the version in lockstep with the release workflow
+        # (.github/workflows/actions.yml) — validating with a different
+        # cibuildwheel than the release uses defeats the purpose.
+        uses: pypa/cibuildwheel@v3.4.1
+        with:
+          only: cp314t-manylinux_x86_64
+
   coveralls-finished:
     name: Indicate completion to coveralls.io
     needs: tests
