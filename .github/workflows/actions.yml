@@ -11,7 +11,10 @@ jobs:
       contents: write
     strategy:
       matrix:
-        os: [ ubuntu-22.04 , windows-2022, macos-13 ]
+        # macos-13 (Intel) runners are retired; macos-14 is Apple Silicon
+        # (arm64). cibuildwheel builds arm64 natively and cross-builds the
+        # x86_64 wheels (x86_64 can't be tested on an arm64 runner).
+        os: [ ubuntu-22.04 , windows-2022, macos-14 ]
     steps:
       - uses: actions/checkout@v4
       - name: Get proton-python-driver tag
