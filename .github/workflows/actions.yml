@@ -1,4 +1,4 @@
-on: 
+on:
   - workflow_dispatch
 name: release
 jobs:
@@ -6,66 +6,37 @@ jobs:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     permissions:
-      # The GitHub release is created with the workflow's own token; the
-      # GH_ACCESS_TOKEN PAT this step used through v0.2.13 no longer exists.
-      contents: write
+      # Builders only upload artifacts now; the GitHub release is published
+      # once, after the builds, by publish-github-release below.
+      contents: read
     strategy:
       matrix:
-        # macos-13 (Intel) runners are retired; macos-14 is Apple Silicon
-        # (arm64). cibuildwheel builds arm64 natively and cross-builds the
-        # x86_64 wheels (x86_64 can't be tested on an arm64 runner).
-        os: [ ubuntu-22.04 , windows-2022, macos-14 ]
+        # Native runners per architecture — no QEMU. ubuntu-22.04-arm is a
+        # free public-repo arm64 runner, so aarch64 wheels build natively
+        # instead of under ~10x-slower emulation. macos-14 is Apple Silicon
+        # (arm64): it builds arm64 natively and cross-builds the x86_64 mac
+        # wheels (x86_64 can't be tested on an arm64 runner, only built).
+        os:
+          - ubuntu-22.04
+          - ubuntu-22.04-arm
+          - windows-2022
+          - macos-14
     steps:
       - uses: actions/checkout@v4
-      - name: Get proton-python-driver tag
-        id: get_tag_name
-        if: ${{ !startsWith( matrix.os, 'windows' ) }}
-        run: |
-          VERSION=`grep '^VERSION' proton_driver/__init__.py \
-          | sed 's/^VERSION = (//g' \
-          | sed 's/).*//g' \
-          | sed 's/, /./g'`
-          VERSION=v$VERSION
-          echo $VERSION
-          echo "tag_name=$VERSION" >> $GITHUB_OUTPUT
-      - name: Get proton-python-driver tag(windows)
-        if: ${{ startsWith( matrix.os, 'windows' ) }}
-        id: get_tag_name_win
-        shell: pwsh
-        run: |
-          $VERSION=((Get-Content proton_driver/__init__.py | Select-String -Pattern '^VERSION') -replace "^VERSION = \((\d+), (\d+), (\d+)\)","v`$1.`$2.`$3")
-          Write-Output $VERSION
-          Write-Output "tag_name=$VERSION" >> $env:GITHUB_OUTPUT
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        if: ${{ startsWith( matrix.os, 'ubuntu' ) }}
-        with:
-          image: tonistiigi/binfmt:latest
-          platforms: all
       - name: Build wheels
-        # v3.4.1 is the first stable line with CPython 3.14 (incl. cp314t) wheel support.
-        # v2.21.3 predates 3.14 and would silently skip cp314/cp314t targets.
+        # v3.4.1 is the first stable line with CPython 3.14 (incl. cp314t)
+        # wheel support. v2.21.3 predates 3.14 and would silently skip it.
         uses: pypa/cibuildwheel@v3.4.1
         with:
           package-dir: .
           output-dir: wheelhouse
           config-file: pyproject.toml
       - name: Store the distribution packages
-        # Upload before the GitHub-release step: if release creation fails,
-        # the wheels still reach publish-to-pypi (and remain downloadable).
         uses: actions/upload-artifact@v4
         with:
           # v4 requires unique artifact names per job; matrix.os keeps them distinct.
           name: python-package-distributions-${{ matrix.os }}
           path: wheelhouse/*.whl
-      - name: Release wheels
-        uses: softprops/action-gh-release@v2
-        with:
-          files: wheelhouse/*.whl
-          generate_release_notes: true
-          tag_name: ${{ join(steps.*.outputs.tag_name, '') }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build_sdist:
     # Interpreters without a published wheel (e.g. EOL PyPy releases that
@@ -81,7 +52,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           # Matches the python-package-distributions-* download pattern in
-          # publish-to-pypi alongside the per-OS wheel artifacts.
+          # publish-to-pypi / publish-github-release.
           name: python-package-distributions-sdist
           path: dist/*.tar.gz
 
@@ -95,13 +66,16 @@ jobs:
       name: pypi
       url: https://pypi.org/p/proton-driver
     permissions:
-      id-token: write  # IMPORTANT: mandatory for trusted publishing
+      # Token-based publishing (PYPI_TOKEN below) uses no OIDC, so no
+      # id-token: write is needed. To switch to PyPI trusted publishing later,
+      # add `id-token: write`, drop the username/password, and delete the token.
+      contents: read
     steps:
     - name: Download all the dists
       uses: actions/download-artifact@v4
       with:
-        # v4 download without a name arg fetches every matching artifact; the pattern
-        # joins the per-OS uploads from build_wheels back into a single dist/ tree.
+        # v4 download without a name arg fetches every matching artifact; the
+        # pattern joins the per-OS wheel uploads + the sdist into one dist/ tree.
         pattern: python-package-distributions-*
         merge-multiple: true
         path: dist/
@@ -110,3 +84,50 @@ jobs:
       with:
         username: __token__
         password: ${{ secrets.PYPI_TOKEN }}
+
+  publish-github-release:
+    # Publish ONE complete GitHub release (all wheels + sdist) from a single
+    # job after the builds, instead of each matrix job racing to create/update
+    # the release. Single-writer, not transactional: action-gh-release uploads
+    # assets sequentially, so a mid-upload failure can leave a partial release
+    # (re-run the job to finish); fail_on_unmatched_files below makes an empty
+    # glob fail loudly. Depends on the BUILD jobs, not on publish-to-pypi, so a
+    # PyPI upload failure still leaves a downloadable GitHub release.
+    name: Publish GitHub release
+    needs:
+      - build_wheels
+      - build_sdist
+    runs-on: ubuntu-latest
+    permissions:
+      # The GitHub release is created with the workflow's own token; the
+      # GH_ACCESS_TOKEN PAT used through v0.2.13 no longer exists.
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
+        with:
+          pattern: python-package-distributions-*
+          merge-multiple: true
+          path: dist/
+      - name: Get proton-python-driver tag
+        id: get_tag_name
+        run: |
+          VERSION=`grep '^VERSION' proton_driver/__init__.py \
+          | sed 's/^VERSION = (//g' \
+          | sed 's/).*//g' \
+          | sed 's/, /./g'`
+          VERSION=v$VERSION
+          echo $VERSION
+          echo "tag_name=$VERSION" >> $GITHUB_OUTPUT
+      - name: Release distributions
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          # Fail loudly if the glob matches nothing (e.g. artifact download
+          # changes) instead of publishing an empty/incomplete release.
+          fail_on_unmatched_files: true
+          generate_release_notes: true
+          tag_name: ${{ steps.get_tag_name.outputs.tag_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
